@@ -8,4 +8,5 @@ public static class RigUtils
     public static Action<VRRig> OnRigCached;
 
     public static Action<VRRig, string> OnRigNameChange;
+    public static Action<VRRig> OnMatIndexChange;
 }

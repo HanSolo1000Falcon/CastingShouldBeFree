@@ -8,7 +8,7 @@ namespace CastingShouldBeFree.Core.ModeHandlers;
 public class FirstPersonModeHandler : ModeHandlerBase
 {
     public override string HandlerName => "First Person";
-
+    
     private void OnEnable()
     {
         OnCastedRigChange(GUIHandler.Instance.CastedRig, null);

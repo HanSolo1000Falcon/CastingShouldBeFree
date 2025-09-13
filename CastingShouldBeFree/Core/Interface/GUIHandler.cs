@@ -127,6 +127,7 @@ public class GUIHandler : Singleton<GUIHandler>
         RigUtils.OnRigSpawned += OnRigSpawned;
         RigUtils.OnRigCached += OnRigCached;
         RigUtils.OnRigNameChange += UpdatePlayerName;
+        RigUtils.OnMatIndexChange += UpdatePlayerTagState;
 
         if (VRRig.LocalRig != null)
             OnRigSpawned(VRRig.LocalRig);
@@ -183,6 +184,9 @@ public class GUIHandler : Singleton<GUIHandler>
             Destroy(rigButtons[rig]);
             rigButtons.Remove(rig);
         }
+
+        if (CastedRig == rig)
+            CastedRig = VRRig.LocalRig;
     }
 
     private void UpdatePlayerName(VRRig rig, string playerName)
@@ -190,7 +194,7 @@ public class GUIHandler : Singleton<GUIHandler>
         if (rigButtons.TryGetValue(rig, out GameObject button))
             button.GetComponentInChildren<TextMeshProUGUI>().text = playerName;
 
-        if (Equals(CastedRig, rig))
+        if (CastedRig == rig)
             currentPlayerText.text =
                 $"Name: <color=#{ColorUtility.ToHtmlStringRGB(rig.playerColor)}>{playerName}</color>";
     }
@@ -199,6 +203,17 @@ public class GUIHandler : Singleton<GUIHandler>
     {
         string playerName = rig.OwningNetPlayer != null ? rig.OwningNetPlayer.NickName : rig.playerText1.text;
         currentPlayerText.text = $"Name: <color=#{ColorUtility.ToHtmlStringRGB(rig.playerColor)}>{playerName}</color>";
+        isPlayerTaggedText.text =
+            $"Is Tagged? {(rig.IsTagged() ? "<color=green>Yes!</color>" : "<color=red>No!</color>")}";
         CastedRig = rig;
+    }
+
+    private void UpdatePlayerTagState(VRRig rig)
+    {
+        if (CastedRig != rig)
+            return;
+        
+        isPlayerTaggedText.text =
+            $"Is Tagged? {(rig.IsTagged() ? "<color=green>Yes!</color>" : "<color=red>No!</color>")}";
     }
 }
