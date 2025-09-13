@@ -12,7 +12,15 @@ public class FirstPersonModeHandler : ModeHandlerBase
     private void OnEnable()
     {
         OnCastedRigChange(GUIHandler.Instance.CastedRig, null);
+        CameraHandler.Instance.ToggleVisibility(false);
         GUIHandler.Instance.OnCastedRigChange += OnCastedRigChange;
+    }
+    
+    private void OnDisable()
+    {
+        GUIHandler.Instance.OnCastedRigChange -= OnCastedRigChange;
+        ToggleFaceCosmetics(GUIHandler.Instance.CastedRig, true);
+        CameraHandler.Instance.ToggleVisibility(true);
     }
 
     private void OnCastedRigChange(VRRig currentRig, VRRig lastRig)
@@ -28,13 +36,6 @@ public class FirstPersonModeHandler : ModeHandlerBase
 
         if (lastRig != null)
             ToggleFaceCosmetics(lastRig, true);
-    }
-
-    private void OnDisable()
-    {
-        GUIHandler.Instance.OnCastedRigChange -= OnCastedRigChange;
-        ToggleFaceCosmetics(GUIHandler.Instance.CastedRig, true);
-        CameraHandler.Instance.ToggleVisibility(true);
     }
 
     private void ToggleFaceCosmetics(VRRig rig, bool toggled)
