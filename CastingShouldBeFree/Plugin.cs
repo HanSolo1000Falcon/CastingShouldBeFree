@@ -4,6 +4,7 @@ using BepInEx;
 using CastingShouldBeFree.Core.Interface;
 using HarmonyLib;
 using UnityEngine;
+using UnityEngine.XR;
 
 namespace CastingShouldBeFree;
 
@@ -35,6 +36,9 @@ public class Plugin : BaseUnityPlugin
 
         PCCamera = GorillaTagger.Instance.thirdPersonCamera.transform.GetChild(0);
         Destroy(PCCamera.GetChild(0).gameObject);
+
+        if (!XRSettings.isDeviceActive)
+            PCCamera.AddComponent<AudioListener>();
         
         GameObject cameraPrefab = CastingBundle.LoadAsset<GameObject>("CardboardCamera");
         GameObject camera = Instantiate(cameraPrefab);

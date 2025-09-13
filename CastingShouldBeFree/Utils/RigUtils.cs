@@ -1,4 +1,5 @@
 using System;
+using UnityEngine;
 
 namespace CastingShouldBeFree.Utils;
 
@@ -9,4 +10,5 @@ public static class RigUtils
 
     public static Action<VRRig, string> OnRigNameChange;
     public static Action<VRRig> OnMatIndexChange;
+    public static Action<VRRig, Color> OnRigColourChange;
 }

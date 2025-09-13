@@ -17,5 +17,9 @@ public static class SetColourPatch
             SpawnedRigs.Add(__instance);
             RigUtils.OnRigSpawned?.Invoke(__instance);
         }
+        else
+        {
+            RigUtils.OnRigColourChange?.Invoke(__instance, color);
+        }
     }
 }
