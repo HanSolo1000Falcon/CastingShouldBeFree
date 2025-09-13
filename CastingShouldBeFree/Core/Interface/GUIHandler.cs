@@ -113,7 +113,7 @@ public class GUIHandler : Singleton<GUIHandler>
 
         currentModeText = canvas.transform.Find("MainPanel/CurrentMode").GetComponent<TextMeshProUGUI>();
 
-        MaxSmoothing = (int)smoothingSlider.maxValue;
+        MaxSmoothing = (int)smoothingSlider.maxValue + 1;
         
         smoothingSlider.onValueChanged.AddListener((value) =>
         {

@@ -19,13 +19,40 @@ public class CameraHandler : Singleton<CameraHandler>
     {
         if (Parent != null)
         {
-            transform.position = Parent.TransformPoint(LocalPosition);
-            transform.rotation = Parent.TransformRotation(LocalRotation);
+            Vector3 targetPosition = Parent.TransformPoint(LocalPosition);
+            Quaternion targetRotation = Parent.TransformRotation(LocalRotation);
+
+            if (SmoothingFactor > 0)
+            {
+                int smoothingFactorInternal = -(SmoothingFactor - GUIHandler.Instance.MaxSmoothing);
+                Quaternion smoothedRotation = Quaternion.Slerp(transform.rotation, targetRotation,
+                    Time.deltaTime * smoothingFactorInternal);
+
+                transform.position = targetPosition;
+                transform.rotation = smoothedRotation;
+            }
+            else
+            {
+                transform.position = targetPosition;
+                transform.rotation = targetRotation;
+            }
         }
         else
         {
-            transform.position = TargetPosition;
-            transform.rotation = TargetRotation;
+            if (SmoothingFactor > 0)
+            {
+                int smoothingFactorInternal = -(SmoothingFactor - GUIHandler.Instance.MaxSmoothing);
+                Quaternion smoothedRotation = Quaternion.Slerp(transform.rotation, TargetRotation,
+                    Time.deltaTime * smoothingFactorInternal);
+
+                transform.position = TargetPosition;
+                transform.rotation = smoothedRotation;
+            }
+            else
+            {
+                transform.position = TargetPosition;
+                transform.rotation = TargetRotation;
+            }
         }
     }
     
