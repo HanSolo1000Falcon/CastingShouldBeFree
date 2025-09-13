@@ -2,7 +2,9 @@
 using System.Reflection;
 using BepInEx;
 using CastingShouldBeFree.Core.Interface;
+using GorillaNetworking;
 using HarmonyLib;
+using Photon.Pun;
 using UnityEngine;
 using UnityEngine.XR;
 
@@ -48,5 +50,11 @@ public class Plugin : BaseUnityPlugin
 
         GameObject componentHolder = new GameObject("Casting Should Be Free");
         componentHolder.AddComponent<GUIHandler>();
+    }
+
+    private void Update()
+    {
+        if (UnityInput.Current.GetKeyDown(KeyCode.I))
+            PhotonNetworkController.Instance.disableAFKKick = true;
     }
 }

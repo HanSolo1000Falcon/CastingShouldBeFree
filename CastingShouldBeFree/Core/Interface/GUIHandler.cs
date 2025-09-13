@@ -1,13 +1,16 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using BepInEx;
 using CastingShouldBeFree.Core.ModeHandlers;
 using CastingShouldBeFree.Patches;
 using CastingShouldBeFree.Utils;
+using GorillaNetworking;
 using Microsoft.Win32.SafeHandles;
+using Photon.Pun;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -63,9 +66,11 @@ public class GUIHandler : Singleton<GUIHandler>
     private Dictionary<string, ModeHandlerBase> modeHandlers = new();
 
     private bool hasInitEventSystem;
-    
+    private bool isInSettings;
+
     private GameObject canvas;
     private GameObject mainPanel;
+    private GameObject settingsPanel;
 
     private Camera miniMapCamera;
 
@@ -89,16 +94,33 @@ public class GUIHandler : Singleton<GUIHandler>
         Destroy(canvasPrefab);
         canvas.name = "Casting Should Be Free Canvas";
 
+        canvas.transform.Find("Scoreboard").AddComponent<ScoreboardHandler>();
+
         leaderboardEntryPrefab = Plugin.Instance.CastingBundle.LoadAsset<GameObject>("LeaderboardEntry");
 
         leaderboard = canvas.transform.Find("Leaderboard");
         mainPanel = canvas.transform.Find("MainPanel").gameObject;
+        settingsPanel = canvas.transform.Find("SettingsPanel").gameObject;
+        
+        settingsPanel.transform.Find("Exit").GetComponent<Button>().onClick.AddListener(() =>
+        {
+            isInSettings = false;
+            settingsPanel.SetActive(false);
+            mainPanel.SetActive(true);
+        });
 
         playerContent = mainPanel.transform.Find("Players/Viewport/Content");
 
         Transform playerInformation = mainPanel.transform.Find("Chin/PlayerInformation");
         currentPlayerText = playerInformation.Find("PlayerName").GetComponent<TextMeshProUGUI>();
         isPlayerTaggedText = playerInformation.Find("IsTagged").GetComponent<TextMeshProUGUI>();
+
+        mainPanel.transform.Find("Chin/Settings").GetComponent<Button>().onClick.AddListener(() =>
+        {
+            isInSettings = true;
+            settingsPanel.SetActive(true);
+            mainPanel.SetActive(false);
+        });
 
         currentPlayerText.text = "No Player Selected";
 
@@ -121,7 +143,7 @@ public class GUIHandler : Singleton<GUIHandler>
         nearClipSlider.onValueChanged.AddListener((value) =>
         {
             Plugin.Instance.PCCamera.GetComponent<Camera>().nearClipPlane = value;
-            nearClipText.text = $"Near Clip: {value:F}";
+            nearClipText.text = $"Near Clip: {value.ToString("F", CultureInfo.InvariantCulture)}";
         });
 
         Transform smoothingPanel = mainPanel.transform.Find("SmoothingPanel");
@@ -140,6 +162,34 @@ public class GUIHandler : Singleton<GUIHandler>
 
         fovSlider.onValueChanged?.Invoke(fovSlider.value);
         nearClipSlider.onValueChanged?.Invoke(nearClipSlider.value);
+        
+        settingsPanel.transform.Find("AntiAFKKick").GetComponent<Button>().onClick.AddListener(() =>
+        {
+            PhotonNetworkController.Instance.disableAFKKick = !PhotonNetworkController.Instance.disableAFKKick;
+            settingsPanel.transform.Find("AntiAFKKick").GetComponentInChildren<TextMeshProUGUI>().text =
+                $"Anti AFK Kick\n{(PhotonNetworkController.Instance.disableAFKKick ? "<color=green>Enabled</color>" : "<color=red>Disabled</color>")}";
+        });
+
+        settingsPanel.transform.Find("Leaderboard").GetComponent<Button>().onClick.AddListener(() =>
+        {
+            leaderboard.gameObject.SetActive(!leaderboard.gameObject.activeSelf);
+            settingsPanel.transform.Find("Leaderboard").GetComponentInChildren<TextMeshProUGUI>().text =
+                $"Leaderboard\n{(leaderboard.gameObject.activeSelf ? "<color=green>Enabled</color>" : "<color=red>Disabled</color>")}";
+        });
+        
+        settingsPanel.transform.Find("Scoreboard").GetComponent<Button>().onClick.AddListener(() =>
+        {
+            ScoreboardHandler.Instance.gameObject.SetActive(!ScoreboardHandler.Instance.gameObject.activeSelf);
+            settingsPanel.transform.Find("Scoreboard").GetComponentInChildren<TextMeshProUGUI>().text =
+                $"Scoreboard\n{(ScoreboardHandler.Instance.gameObject.activeSelf ? "<color=green>Enabled</color>" : "<color=red>Disabled</color>")}";
+        });
+
+        settingsPanel.transform.Find("MiniMap").GetComponent<Button>().onClick.AddListener(() =>
+        {
+            canvas.transform.Find("MiniMap").gameObject.SetActive(!canvas.transform.Find("MiniMap").gameObject.activeSelf);
+            settingsPanel.transform.Find("MiniMap").GetComponentInChildren<TextMeshProUGUI>().text =
+                $"Mini Map\n{(canvas.transform.Find("MiniMap").gameObject.activeSelf ? "<color=green>Enabled</color>" : "<color=red>Disabled</color>")}";
+        });
 
         RigUtils.OnRigSpawned += OnRigSpawned;
         RigUtils.OnRigCached += OnRigCached;
@@ -183,6 +233,7 @@ public class GUIHandler : Singleton<GUIHandler>
 
         RenderTexture miniMapRenderTexture =
             Instantiate(Plugin.Instance.CastingBundle.LoadAsset<RenderTexture>("MiniMapRenderTexture"));
+        canvas.transform.Find("MiniMap").gameObject.SetActive(true);
         canvas.transform.Find("MiniMap").GetComponent<RawImage>().texture = miniMapRenderTexture;
 
         miniMapCamera = new GameObject("hi im a miinimap camera so cool").AddComponent<Camera>();
@@ -195,7 +246,7 @@ public class GUIHandler : Singleton<GUIHandler>
     {
         if (hasInitEventSystem)
             return;
-        
+
         GUI.Label(new Rect(0f, 0f, 500f, 100f), "Press 'C' to Open the Casting GUI!");
     }
 
@@ -210,7 +261,10 @@ public class GUIHandler : Singleton<GUIHandler>
             }
             else
             {
-                mainPanel.SetActive(!mainPanel.activeSelf);
+                if (isInSettings)
+                    settingsPanel.SetActive(!settingsPanel.activeSelf);
+                else
+                    mainPanel.SetActive(!mainPanel.activeSelf);
             }
         }
 
@@ -283,11 +337,11 @@ public class GUIHandler : Singleton<GUIHandler>
         currentPlayerText.text = $"Name: <color=#{ColorUtility.ToHtmlStringRGB(rig.playerColor)}>{playerName}</color>";
         isPlayerTaggedText.text =
             $"Is Tagged? {(rig.IsTagged() ? "<color=green>Yes!</color>" : "<color=red>No!</color>")}";
-        
+
         miniMapCamera.transform.SetParent(rig.bodyRenderer.transform);
         miniMapCamera.transform.localPosition = new Vector3(0f, 20f, 0f);
         miniMapCamera.transform.rotation = Quaternion.LookRotation(Vector3.down, Vector3.up);
-        
+
         CastedRig = rig;
     }
 
