@@ -20,9 +20,9 @@ public class FirstPersonModeHandler : ModeHandlerBase
         if (currentRig == null)
             return;
 
-        Plugin.Instance.PCCamera.SetParent(currentRig.headMesh.transform, false);
-        Plugin.Instance.PCCamera.localPosition = new Vector3(0f, 0.15f, 0f);
-        Plugin.Instance.PCCamera.localRotation = Quaternion.identity;
+        CameraHandler.Instance.Parent = currentRig.headMesh.transform;
+        CameraHandler.Instance.LocalPosition = new Vector3(0f, 0.15f, 0f);
+        CameraHandler.Instance.LocalRotation = Quaternion.identity;
 
         ToggleFaceCosmetics(currentRig, false);
 
@@ -34,6 +34,7 @@ public class FirstPersonModeHandler : ModeHandlerBase
     {
         GUIHandler.Instance.OnCastedRigChange -= OnCastedRigChange;
         ToggleFaceCosmetics(GUIHandler.Instance.CastedRig, true);
+        CameraHandler.Instance.ToggleVisibility(true);
     }
 
     private void ToggleFaceCosmetics(VRRig rig, bool toggled)

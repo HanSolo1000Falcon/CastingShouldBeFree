@@ -35,6 +35,12 @@ public class Plugin : BaseUnityPlugin
 
         PCCamera = GorillaTagger.Instance.thirdPersonCamera.transform.GetChild(0);
         Destroy(PCCamera.GetChild(0).gameObject);
+        
+        GameObject cameraPrefab = CastingBundle.LoadAsset<GameObject>("CardboardCamera");
+        GameObject camera = Instantiate(cameraPrefab);
+        camera.AddComponent<CameraHandler>();
+        camera.name = "CardboardCamera";
+        Destroy(cameraPrefab);
 
         GameObject componentHolder = new GameObject("Casting Should Be Free");
         componentHolder.AddComponent<GUIHandler>();

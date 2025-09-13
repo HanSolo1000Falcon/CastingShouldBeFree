@@ -43,6 +43,7 @@ public class GUIHandler : Singleton<GUIHandler>
             if (_currentHandlerName != value)
             {
                 _currentHandlerName = value;
+                currentModeText.text = $"Current Mode: {value}";
 
                 foreach (string modeHandlerName in modeHandlers.Keys)
                     modeHandlers[modeHandlerName].enabled = modeHandlerName == value;
@@ -53,6 +54,8 @@ public class GUIHandler : Singleton<GUIHandler>
     #endregion
 
     public Action<VRRig, VRRig> OnCastedRigChange;
+
+    public int MaxSmoothing { get; private set; }
     
     private Dictionary<string, ModeHandlerBase> modeHandlers = new();
 
@@ -61,6 +64,7 @@ public class GUIHandler : Singleton<GUIHandler>
 
     private TextMeshProUGUI currentPlayerText;
     private TextMeshProUGUI isPlayerTaggedText;
+    private TextMeshProUGUI currentModeText;
 
     private GameObject playerButtonPrefab;
 
@@ -79,7 +83,46 @@ public class GUIHandler : Singleton<GUIHandler>
         currentPlayerText = playerInformation.Find("PlayerName").GetComponent<TextMeshProUGUI>();
         isPlayerTaggedText = playerInformation.Find("IsTagged").GetComponent<TextMeshProUGUI>();
 
+        currentPlayerText.text = "No Player Selected";
+
         playerButtonPrefab = Plugin.Instance.CastingBundle.LoadAsset<GameObject>("PlayerButton");
+
+        Transform fovPanel = canvas.transform.Find("MainPanel/FOVPanel");
+        Slider fovSlider = fovPanel.GetComponentInChildren<Slider>();
+        TextMeshProUGUI fovText = fovPanel.GetComponentInChildren<TextMeshProUGUI>();
+        
+        fovSlider.onValueChanged.AddListener((value) =>
+        {
+            Plugin.Instance.PCCamera.GetComponent<Camera>().fieldOfView = value;
+            fovText.text = $"FOV: {value:N0}";
+        });
+
+        Transform nearClipPanel = canvas.transform.Find("MainPanel/NearClipPanel");
+        Slider nearClipSlider = nearClipPanel.GetComponentInChildren<Slider>();
+        TextMeshProUGUI nearClipText = nearClipPanel.GetComponentInChildren<TextMeshProUGUI>();
+        
+        nearClipSlider.onValueChanged.AddListener((value) =>
+        {
+            Plugin.Instance.PCCamera.GetComponent<Camera>().nearClipPlane = value;
+            nearClipText.text = $"Near Clip: {value:F}";
+        });
+
+        Transform smoothingPanel = canvas.transform.Find("MainPanel/SmoothingPanel");
+        Slider smoothingSlider = smoothingPanel.GetComponentInChildren<Slider>();
+        TextMeshProUGUI smoothingText = smoothingPanel.GetComponentInChildren<TextMeshProUGUI>();
+
+        currentModeText = canvas.transform.Find("MainPanel/CurrentMode").GetComponent<TextMeshProUGUI>();
+
+        MaxSmoothing = (int)smoothingSlider.maxValue;
+        
+        smoothingSlider.onValueChanged.AddListener((value) =>
+        {
+            CameraHandler.Instance.SmoothingFactor = (int)value;
+            smoothingText.text = $"Smoothing: {value:N0}";
+        });
+        
+        fovSlider.onValueChanged?.Invoke(fovSlider.value);
+        nearClipSlider.onValueChanged?.Invoke(nearClipSlider.value);
 
         RigUtils.OnRigSpawned += OnRigSpawned;
         RigUtils.OnRigCached += OnRigCached;
