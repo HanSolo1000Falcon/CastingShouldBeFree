@@ -97,6 +97,7 @@ public class GUIHandler : Singleton<GUIHandler>
         canvas.name = "Casting Should Be Free Canvas";
 
         canvas.transform.Find("Scoreboard").AddComponent<ScoreboardHandler>();
+        canvas.transform.Find("ClosestLava").AddComponent<ClosestTaggedHandler>();
 
         leaderboardEntryPrefab = Plugin.Instance.CastingBundle.LoadAsset<GameObject>("LeaderboardEntry");
 
@@ -169,33 +170,40 @@ public class GUIHandler : Singleton<GUIHandler>
         fovSlider.onValueChanged?.Invoke(fovSlider.value);
         nearClipSlider.onValueChanged?.Invoke(nearClipSlider.value);
 
-        settingsPanel.transform.Find("AntiAFKKick").GetComponent<Button>().onClick.AddListener(() =>
+        settingsPanel.transform.Find("SettingsGrid/AntiAFKKick").GetComponent<Button>().onClick.AddListener(() =>
         {
             PhotonNetworkController.Instance.disableAFKKick = !PhotonNetworkController.Instance.disableAFKKick;
-            settingsPanel.transform.Find("AntiAFKKick").GetComponentInChildren<TextMeshProUGUI>().text =
+            settingsPanel.transform.Find("SettingsGrid/AntiAFKKick").GetComponentInChildren<TextMeshProUGUI>().text =
                 $"Anti AFK Kick\n{(PhotonNetworkController.Instance.disableAFKKick ? "<color=green>Enabled</color>" : "<color=red>Disabled</color>")}";
         });
 
-        settingsPanel.transform.Find("Leaderboard").GetComponent<Button>().onClick.AddListener(() =>
+        settingsPanel.transform.Find("SettingsGrid/Leaderboard").GetComponent<Button>().onClick.AddListener(() =>
         {
             leaderboard.gameObject.SetActive(!leaderboard.gameObject.activeSelf);
-            settingsPanel.transform.Find("Leaderboard").GetComponentInChildren<TextMeshProUGUI>().text =
+            settingsPanel.transform.Find("SettingsGrid/Leaderboard").GetComponentInChildren<TextMeshProUGUI>().text =
                 $"Leaderboard\n{(leaderboard.gameObject.activeSelf ? "<color=green>Enabled</color>" : "<color=red>Disabled</color>")}";
         });
 
-        settingsPanel.transform.Find("Scoreboard").GetComponent<Button>().onClick.AddListener(() =>
+        settingsPanel.transform.Find("SettingsGrid/Scoreboard").GetComponent<Button>().onClick.AddListener(() =>
         {
             ScoreboardHandler.Instance.gameObject.SetActive(!ScoreboardHandler.Instance.gameObject.activeSelf);
-            settingsPanel.transform.Find("Scoreboard").GetComponentInChildren<TextMeshProUGUI>().text =
+            settingsPanel.transform.Find("SettingsGrid/Scoreboard").GetComponentInChildren<TextMeshProUGUI>().text =
                 $"Scoreboard\n{(ScoreboardHandler.Instance.gameObject.activeSelf ? "<color=green>Enabled</color>" : "<color=red>Disabled</color>")}";
         });
 
-        settingsPanel.transform.Find("MiniMap").GetComponent<Button>().onClick.AddListener(() =>
+        settingsPanel.transform.Find("SettingsGrid/MiniMap").GetComponent<Button>().onClick.AddListener(() =>
         {
             canvas.transform.Find("MiniMap").gameObject
                 .SetActive(!canvas.transform.Find("MiniMap").gameObject.activeSelf);
-            settingsPanel.transform.Find("MiniMap").GetComponentInChildren<TextMeshProUGUI>().text =
+            settingsPanel.transform.Find("SettingsGrid/MiniMap").GetComponentInChildren<TextMeshProUGUI>().text =
                 $"Mini Map\n{(canvas.transform.Find("MiniMap").gameObject.activeSelf ? "<color=green>Enabled</color>" : "<color=red>Disabled</color>")}";
+        });
+        
+        settingsPanel.transform.Find("SettingsGrid/ClosestLava").GetComponent<Button>().onClick.AddListener(() =>
+        {
+            ClosestTaggedHandler.Instance.gameObject.SetActive(!ClosestTaggedHandler.Instance.gameObject.activeSelf);
+            settingsPanel.transform.Find("SettingsGrid/ClosestLava").GetComponentInChildren<TextMeshProUGUI>().text =
+                $"Closest Lava\n{(ClosestTaggedHandler.Instance.gameObject.activeSelf ? "<color=green>Enabled</color>" : "<color=red>Disabled</color>")}";
         });
 
         if (SetColourPatch.SpawnedRigs.Contains(VRRig.LocalRig))

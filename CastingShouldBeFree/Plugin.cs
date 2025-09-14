@@ -2,6 +2,7 @@
 using System.Reflection;
 using BepInEx;
 using CastingShouldBeFree.Core.Interface;
+using CastingShouldBeFree.Utils;
 using GorillaNetworking;
 using HarmonyLib;
 using Photon.Pun;
@@ -51,6 +52,7 @@ public class Plugin : BaseUnityPlugin
         Destroy(cameraPrefab);
 
         GameObject componentHolder = new GameObject("Casting Should Be Free");
+        componentHolder.AddComponent<TagManager>();
         componentHolder.AddComponent<GUIHandler>();
     }
 
