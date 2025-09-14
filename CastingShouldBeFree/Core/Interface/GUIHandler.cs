@@ -101,7 +101,7 @@ public class GUIHandler : Singleton<GUIHandler>
         leaderboard = canvas.transform.Find("Leaderboard");
         mainPanel = canvas.transform.Find("MainPanel").gameObject;
         settingsPanel = canvas.transform.Find("SettingsPanel").gameObject;
-        
+
         settingsPanel.transform.Find("Exit").GetComponent<Button>().onClick.AddListener(() =>
         {
             isInSettings = false;
@@ -114,6 +114,10 @@ public class GUIHandler : Singleton<GUIHandler>
         Transform playerInformation = mainPanel.transform.Find("Chin/PlayerInformation");
         currentPlayerText = playerInformation.Find("PlayerName").GetComponent<TextMeshProUGUI>();
         isPlayerTaggedText = playerInformation.Find("IsTagged").GetComponent<TextMeshProUGUI>();
+
+        mainPanel.transform.Find("Chin/RoomStuff").GetComponent<Button>().onClick.AddListener(() =>
+            canvas.transform.Find("RoomStuffPanel").gameObject
+                .SetActive(!canvas.transform.Find("RoomStuffPanel").gameObject.activeSelf));
 
         mainPanel.transform.Find("Chin/Settings").GetComponent<Button>().onClick.AddListener(() =>
         {
@@ -162,7 +166,7 @@ public class GUIHandler : Singleton<GUIHandler>
 
         fovSlider.onValueChanged?.Invoke(fovSlider.value);
         nearClipSlider.onValueChanged?.Invoke(nearClipSlider.value);
-        
+
         settingsPanel.transform.Find("AntiAFKKick").GetComponent<Button>().onClick.AddListener(() =>
         {
             PhotonNetworkController.Instance.disableAFKKick = !PhotonNetworkController.Instance.disableAFKKick;
@@ -176,7 +180,7 @@ public class GUIHandler : Singleton<GUIHandler>
             settingsPanel.transform.Find("Leaderboard").GetComponentInChildren<TextMeshProUGUI>().text =
                 $"Leaderboard\n{(leaderboard.gameObject.activeSelf ? "<color=green>Enabled</color>" : "<color=red>Disabled</color>")}";
         });
-        
+
         settingsPanel.transform.Find("Scoreboard").GetComponent<Button>().onClick.AddListener(() =>
         {
             ScoreboardHandler.Instance.gameObject.SetActive(!ScoreboardHandler.Instance.gameObject.activeSelf);
@@ -186,10 +190,14 @@ public class GUIHandler : Singleton<GUIHandler>
 
         settingsPanel.transform.Find("MiniMap").GetComponent<Button>().onClick.AddListener(() =>
         {
-            canvas.transform.Find("MiniMap").gameObject.SetActive(!canvas.transform.Find("MiniMap").gameObject.activeSelf);
+            canvas.transform.Find("MiniMap").gameObject
+                .SetActive(!canvas.transform.Find("MiniMap").gameObject.activeSelf);
             settingsPanel.transform.Find("MiniMap").GetComponentInChildren<TextMeshProUGUI>().text =
                 $"Mini Map\n{(canvas.transform.Find("MiniMap").gameObject.activeSelf ? "<color=green>Enabled</color>" : "<color=red>Disabled</color>")}";
         });
+
+        if (SetColourPatch.SpawnedRigs.Contains(VRRig.LocalRig))
+            OnRigSpawned(VRRig.LocalRig);
 
         RigUtils.OnRigSpawned += OnRigSpawned;
         RigUtils.OnRigCached += OnRigCached;
@@ -197,9 +205,21 @@ public class GUIHandler : Singleton<GUIHandler>
         RigUtils.OnMatIndexChange += UpdatePlayerTagState;
         RigUtils.OnRigColourChange += UpdatePlayerColour;
 
-        if (VRRig.LocalRig != null)
-            OnRigSpawned(VRRig.LocalRig);
+        Transform roomStuffPanel = canvas.transform.Find("RoomStuffPanel");
+        roomStuffPanel.AddComponent<DraggableUI>();
+        roomStuffPanel.transform.Find("Exit").GetComponent<Button>().onClick
+            .AddListener(() => roomStuffPanel.gameObject.SetActive(false));
+        TMP_InputField roomNameInput = roomStuffPanel.transform.Find("RoomInputField").GetComponent<TMP_InputField>();
+        Button joinRoomButton = roomStuffPanel.transform.Find("JoinRoom").GetComponent<Button>();
+        TextMeshProUGUI roomNameText = joinRoomButton.GetComponentInChildren<TextMeshProUGUI>();
+        roomNameInput.onValueChanged.AddListener((value) => roomNameText.text = $"<color=green>Join</color> Room \'{FilterRoomName(value)}\'");
         
+        roomStuffPanel.Find("LeaveCurrent").GetComponent<Button>().onClick
+            .AddListener(() => NetworkSystem.Instance.ReturnToSinglePlayer());
+        joinRoomButton.onClick.AddListener(() =>
+            PhotonNetworkController.Instance.AttemptToJoinSpecificRoom(FilterRoomName(roomNameInput.text), JoinType.Solo));
+
+
         canvas.SetActive(false);
 
         GameObject modeHandlersComponents = new GameObject("Casting Should Be Free Mode Handlers");
@@ -248,6 +268,29 @@ public class GUIHandler : Singleton<GUIHandler>
             return;
 
         GUI.Label(new Rect(0f, 0f, 500f, 100f), "Press 'C' to Open the Casting GUI!");
+    }
+
+    private string FilterRoomName(string roomName)
+    {
+        string fallback = "12345";
+        
+        roomName = roomName.Trim();
+        roomName = roomName.ToUpper();
+        roomName = roomName.Replace(" ", "");
+        
+        if (string.IsNullOrWhiteSpace(roomName))
+            return fallback;
+        
+        if (GorillaComputer.instance == null)
+            return fallback;
+        
+        if (!GorillaComputer.instance.CheckAutoBanListForName(roomName))
+            return fallback;
+        
+        if (roomName.Length > 12)
+            return roomName.Substring(0, 12);
+        
+        return roomName;
     }
 
     private void Update()
