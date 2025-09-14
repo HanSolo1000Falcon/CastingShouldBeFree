@@ -1,5 +1,6 @@
 using System.Linq;
 using CastingShouldBeFree.Core.Interface;
+using CastingShouldBeFree.Utils;
 using GorillaNetworking;
 using UnityEngine;
 
@@ -15,11 +16,13 @@ public class FirstPersonModeHandler : ModeHandlerBase
         OnCastedRigChange(GUIHandler.Instance.CastedRig, null);
         CameraHandler.Instance.ToggleVisibility(false);
         GUIHandler.Instance.OnCastedRigChange += OnCastedRigChange;
+        RigUtils.OnRigCosmeticsChange += OnRigCosmeticsUpdate;
     }
 
     private void OnDisable()
     {
         GUIHandler.Instance.OnCastedRigChange -= OnCastedRigChange;
+        RigUtils.OnRigCosmeticsChange -= OnRigCosmeticsUpdate;
         ToggleFaceCosmetics(GUIHandler.Instance.CastedRig, true);
         CameraHandler.Instance.ToggleVisibility(true);
     }
@@ -33,6 +36,14 @@ public class FirstPersonModeHandler : ModeHandlerBase
 
         if (lastRig != null)
             ToggleFaceCosmetics(lastRig, true);
+    }
+
+    private void OnRigCosmeticsUpdate(VRRig rig)
+    {
+        if (rig != GUIHandler.Instance.CastedRig)
+            return;
+        
+        ToggleFaceCosmetics(rig, false);
     }
 
     private void LateUpdate()
