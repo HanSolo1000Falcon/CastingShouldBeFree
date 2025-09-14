@@ -9,14 +9,14 @@ public class FirstPersonModeHandler : ModeHandlerBase
 {
     public override string HandlerName => HandlerNameStatic();
     public static string HandlerNameStatic() => "First Person";
-    
+
     private void OnEnable()
     {
         OnCastedRigChange(GUIHandler.Instance.CastedRig, null);
         CameraHandler.Instance.ToggleVisibility(false);
         GUIHandler.Instance.OnCastedRigChange += OnCastedRigChange;
     }
-    
+
     private void OnDisable()
     {
         GUIHandler.Instance.OnCastedRigChange -= OnCastedRigChange;
@@ -29,14 +29,26 @@ public class FirstPersonModeHandler : ModeHandlerBase
         if (currentRig == null)
             return;
 
-        CameraHandler.Instance.Parent = currentRig.headMesh.transform;
-        CameraHandler.Instance.LocalPosition = new Vector3(0f, 0.15f, 0f);
-        CameraHandler.Instance.LocalRotation = Quaternion.identity;
-
         ToggleFaceCosmetics(currentRig, false);
 
         if (lastRig != null)
             ToggleFaceCosmetics(lastRig, true);
+    }
+
+    private void LateUpdate()
+    {
+        if (GUIHandler.Instance.CastedRig == null)
+            return;
+        
+        Quaternion targetRotation = GUIHandler.Instance.CastedRig.headMesh.transform.rotation;
+
+        if (CameraHandler.Instance.SmoothingFactor > 0)
+            targetRotation = Quaternion.Slerp(CameraHandler.Instance.transform.rotation, targetRotation,
+                Time.deltaTime * CameraHandler.Instance.GetRealSmoothingFactor());
+
+        CameraHandler.Instance.transform.rotation = targetRotation;
+        CameraHandler.Instance.transform.position =
+            GUIHandler.Instance.CastedRig.headMesh.transform.TransformPoint(new Vector3(0f, 0.15f, 0f));
     }
 
     private void ToggleFaceCosmetics(VRRig rig, bool toggled)
@@ -53,7 +65,7 @@ public class FirstPersonModeHandler : ModeHandlerBase
                 cosmeticItem.itemCategory == CosmeticsController.CosmeticCategory.Face
                     ? CosmeticsController.CosmeticSlots.Face
                     : CosmeticsController.CosmeticSlots.Hat;
-            
+
             if (toggled)
                 cosmeticObject.EnableItem(slot, rig);
             else

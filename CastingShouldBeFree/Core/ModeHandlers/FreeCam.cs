@@ -9,14 +9,16 @@ public class FreeCam : ModeHandlerBase
 {
     public override string HandlerName => "Free Cam";
 
+    private Vector3 targetPosition;
+    private Quaternion targetRotation;
+
     private float yaw;
     private float pitch;
 
     private void OnEnable()
     {
-        CameraHandler.Instance.Parent = null;
-        CameraHandler.Instance.TargetPosition = CameraHandler.Instance.transform.position;
-        CameraHandler.Instance.TargetRotation = CameraHandler.Instance.transform.rotation;
+        targetPosition = CameraHandler.Instance.transform.position;
+        targetRotation = CameraHandler.Instance.transform.rotation;
 
         Vector3 euler = CameraHandler.Instance.transform.rotation.eulerAngles;
         yaw = euler.y;
@@ -25,9 +27,9 @@ public class FreeCam : ModeHandlerBase
 
     private void OnDisable() => Cursor.lockState = CursorLockMode.None;
 
-    private void Update()
+    private void LateUpdate()
     {
-        float speed = UnityInput.Current.GetKey(KeyCode.LeftShift) ? 30f : 15f;
+        float speed = UnityInput.Current.GetKey(KeyCode.LeftShift) ? 30f : 10f;
         speed *= Time.deltaTime;
 
         Vector3 movementDir = Vector3.zero;
@@ -39,7 +41,8 @@ public class FreeCam : ModeHandlerBase
         if (UnityInput.Current.GetKey(KeyCode.Space)) movementDir += Vector3.up * speed;
         if (UnityInput.Current.GetKey(KeyCode.LeftControl)) movementDir -= Vector3.up * speed;
 
-        CameraHandler.Instance.TargetPosition += movementDir;
+        targetPosition += movementDir;
+        Vector3 realTargetPosition = targetPosition;
 
         if (Mouse.current.rightButton.isPressed)
         {
@@ -50,7 +53,7 @@ public class FreeCam : ModeHandlerBase
             pitch -= mouseDelta.y * sensitivity * Time.deltaTime;
             pitch = Mathf.Clamp(pitch, -89f, 89f);
 
-            CameraHandler.Instance.TargetRotation = Quaternion.Euler(pitch, yaw, 0f);
+            targetRotation = Quaternion.Euler(pitch, yaw, 0f);
 
             Cursor.lockState = CursorLockMode.Locked;
         }
@@ -58,5 +61,17 @@ public class FreeCam : ModeHandlerBase
         {
             Cursor.lockState = CursorLockMode.None;
         }
+        
+        Quaternion realTargetRotation = targetRotation;
+
+        if (CameraHandler.Instance.SmoothingFactor > 0)
+        {
+            int realSmoothingFactor = CameraHandler.Instance.GetRealSmoothingFactor();
+            realTargetPosition = Vector3.Lerp(CameraHandler.Instance.transform.position, targetPosition, Time.deltaTime * realSmoothingFactor);
+            realTargetRotation = Quaternion.Slerp(CameraHandler.Instance.transform.rotation, targetRotation, Time.deltaTime * realSmoothingFactor);
+        }
+        
+        CameraHandler.Instance.transform.position = realTargetPosition;
+        CameraHandler.Instance.transform.rotation = realTargetRotation;
     }
 }

@@ -7,54 +7,8 @@ namespace CastingShouldBeFree.Core.Interface;
 public class CameraHandler : Singleton<CameraHandler>
 {
     public int SmoothingFactor;
-    public Transform Parent;
 
-    public Vector3 LocalPosition;
-    public Quaternion LocalRotation;
-    
-    public Vector3 TargetPosition;
-    public Quaternion TargetRotation;
-
-    private void LateUpdate()
-    {
-        if (Parent != null)
-        {
-            Vector3 targetPosition = Parent.TransformPoint(LocalPosition);
-            Quaternion targetRotation = Parent.TransformRotation(LocalRotation);
-
-            if (SmoothingFactor > 0)
-            {
-                int smoothingFactorInternal = -(SmoothingFactor - GUIHandler.Instance.MaxSmoothing);
-                Quaternion smoothedRotation = Quaternion.Slerp(transform.rotation, targetRotation,
-                    Time.deltaTime * smoothingFactorInternal);
-
-                transform.position = targetPosition;
-                transform.rotation = smoothedRotation;
-            }
-            else
-            {
-                transform.position = targetPosition;
-                transform.rotation = targetRotation;
-            }
-        }
-        else
-        {
-            if (SmoothingFactor > 0)
-            {
-                int smoothingFactorInternal = -(SmoothingFactor - GUIHandler.Instance.MaxSmoothing);
-                Quaternion smoothedRotation = Quaternion.Slerp(transform.rotation, TargetRotation,
-                    Time.deltaTime * smoothingFactorInternal);
-
-                transform.position = TargetPosition;
-                transform.rotation = smoothedRotation;
-            }
-            else
-            {
-                transform.position = TargetPosition;
-                transform.rotation = TargetRotation;
-            }
-        }
-    }
+    public int GetRealSmoothingFactor() => -(SmoothingFactor - GUIHandler.Instance.MaxSmoothing);
     
     private void Start()
     {
