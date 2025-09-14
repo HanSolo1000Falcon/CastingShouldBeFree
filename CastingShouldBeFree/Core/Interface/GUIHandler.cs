@@ -68,6 +68,8 @@ public class GUIHandler : Singleton<GUIHandler>
     private bool hasInitEventSystem;
     private bool isInSettings;
 
+    private float initTime;
+    
     private GameObject canvas;
     private GameObject mainPanel;
     private GameObject settingsPanel;
@@ -218,8 +220,7 @@ public class GUIHandler : Singleton<GUIHandler>
             .AddListener(() => NetworkSystem.Instance.ReturnToSinglePlayer());
         joinRoomButton.onClick.AddListener(() =>
             PhotonNetworkController.Instance.AttemptToJoinSpecificRoom(FilterRoomName(roomNameInput.text), JoinType.Solo));
-
-
+        
         canvas.SetActive(false);
 
         GameObject modeHandlersComponents = new GameObject("Casting Should Be Free Mode Handlers");
@@ -250,6 +251,8 @@ public class GUIHandler : Singleton<GUIHandler>
                 Destroy(modeHandlerComponent);
             }
         }
+        
+        CurrentHandlerName = FirstPersonModeHandler.HandlerNameStatic();
 
         RenderTexture miniMapRenderTexture =
             Instantiate(Plugin.Instance.CastingBundle.LoadAsset<RenderTexture>("MiniMapRenderTexture"));
@@ -258,13 +261,16 @@ public class GUIHandler : Singleton<GUIHandler>
 
         miniMapCamera = new GameObject("hi im a miinimap camera so cool").AddComponent<Camera>();
         miniMapCamera.fieldOfView = 100;
+        miniMapCamera.nearClipPlane = 10f;
         miniMapCamera.orthographic = true;
         miniMapCamera.targetTexture = miniMapRenderTexture;
+
+        initTime = Time.time;
     }
 
     private void OnGUI()
     {
-        if (hasInitEventSystem)
+        if (hasInitEventSystem || Time.time - initTime < 5f)
             return;
 
         GUI.Label(new Rect(0f, 0f, 500f, 100f), "Press 'C' to Open the Casting GUI!");
@@ -295,6 +301,9 @@ public class GUIHandler : Singleton<GUIHandler>
 
     private void Update()
     {
+        if (Time.time - initTime < 5f)
+            return;
+        
         if (UnityInput.Current.GetKeyDown(KeyCode.C))
         {
             if (!hasInitEventSystem)
@@ -319,6 +328,15 @@ public class GUIHandler : Singleton<GUIHandler>
                 ChangePlayer(SetColourPatch.SpawnedRigs[i]);
                 break;
             }
+        }
+    }
+
+    private void LateUpdate()
+    {
+        if (CameraHandler.Instance != null)
+        {
+            miniMapCamera.transform.position = CameraHandler.Instance.transform.position + Vector3.up * 17f;
+            miniMapCamera.transform.rotation = Quaternion.LookRotation(Vector3.down, Vector3.up);
         }
     }
 
@@ -380,10 +398,6 @@ public class GUIHandler : Singleton<GUIHandler>
         currentPlayerText.text = $"Name: <color=#{ColorUtility.ToHtmlStringRGB(rig.playerColor)}>{playerName}</color>";
         isPlayerTaggedText.text =
             $"Is Tagged? {(rig.IsTagged() ? "<color=green>Yes!</color>" : "<color=red>No!</color>")}";
-
-        miniMapCamera.transform.SetParent(rig.bodyRenderer.transform);
-        miniMapCamera.transform.localPosition = new Vector3(0f, 20f, 0f);
-        miniMapCamera.transform.rotation = Quaternion.LookRotation(Vector3.down, Vector3.up);
 
         CastedRig = rig;
     }

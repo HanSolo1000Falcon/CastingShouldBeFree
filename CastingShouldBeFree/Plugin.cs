@@ -37,7 +37,9 @@ public class Plugin : BaseUnityPlugin
         bundleStream?.Close();
 
         PCCamera = GorillaTagger.Instance.thirdPersonCamera.transform.GetChild(0);
-        Destroy(PCCamera.GetChild(0).gameObject);
+        
+        foreach (Transform child in PCCamera)
+            Destroy(child.gameObject);
 
         if (!XRSettings.isDeviceActive)
             PCCamera.AddComponent<AudioListener>();

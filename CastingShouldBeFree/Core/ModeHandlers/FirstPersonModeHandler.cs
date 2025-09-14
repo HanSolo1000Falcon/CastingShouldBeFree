@@ -7,7 +7,8 @@ namespace CastingShouldBeFree.Core.ModeHandlers;
 
 public class FirstPersonModeHandler : ModeHandlerBase
 {
-    public override string HandlerName => "First Person";
+    public override string HandlerName => HandlerNameStatic();
+    public static string HandlerNameStatic() => "First Person";
     
     private void OnEnable()
     {
