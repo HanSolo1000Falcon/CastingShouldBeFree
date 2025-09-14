@@ -2,10 +2,10 @@
 using System.Reflection;
 using BepInEx;
 using CastingShouldBeFree.Core.Interface;
+using CastingShouldBeFree.Nametags;
 using CastingShouldBeFree.Utils;
 using GorillaNetworking;
 using HarmonyLib;
-using Photon.Pun;
 using UnityEngine;
 using UnityEngine.XR;
 
@@ -54,6 +54,7 @@ public class Plugin : BaseUnityPlugin
         GameObject componentHolder = new GameObject("Casting Should Be Free");
         componentHolder.AddComponent<TagManager>();
         componentHolder.AddComponent<GUIHandler>();
+        componentHolder.AddComponent<NametagHandler>();
     }
 
     private void Update()

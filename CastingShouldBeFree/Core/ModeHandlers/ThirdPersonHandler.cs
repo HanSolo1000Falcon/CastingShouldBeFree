@@ -7,6 +7,8 @@ public class ThirdPersonHandler : ModeHandlerBase
 {
     public override string HandlerName => "Third Person";
 
+    public static float X = 0f;
+    
     private Vector3 targetPosition;
     private Quaternion targetRotation;
 
@@ -15,7 +17,7 @@ public class ThirdPersonHandler : ModeHandlerBase
         if (GUIHandler.Instance.CastedRig == null)
             return;
         
-        targetPosition = GUIHandler.Instance.CastedRig.bodyRenderer.transform.TransformPoint(new Vector3(0f, 0.3f, -1f));
+        targetPosition = GUIHandler.Instance.CastedRig.bodyRenderer.transform.TransformPoint(new Vector3(X, 0.3f, -1f));
         targetRotation = GUIHandler.Instance.CastedRig.bodyRenderer.transform.rotation;
 
         if (CameraHandler.Instance.SmoothingFactor > 0)

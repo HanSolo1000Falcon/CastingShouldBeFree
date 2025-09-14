@@ -12,4 +12,5 @@ public static class RigUtils
     public static Action<VRRig> OnMatIndexChange;
     public static Action<VRRig, Color> OnRigColourChange;
     public static Action<VRRig> OnRigCosmeticsChange;
+    public static Action<VRRig> OnRigCosmeticsLoad;
 }
