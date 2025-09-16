@@ -5,7 +5,8 @@ namespace CastingShouldBeFree.Core.ModeHandlers;
 
 public class ThirdPersonHandler : ModeHandlerBase
 {
-    public override string HandlerName => "Third Person";
+    public override string HandlerName => HandlerNameStatic();
+    public static string HandlerNameStatic() => "Third Person";
 
     public static float X = 0f;
     

@@ -298,6 +298,12 @@ public class GUIHandler : Singleton<GUIHandler>
             }
         }
 
+        if (UnityInput.Current.GetKeyDown(KeyCode.P))
+        {
+            string firstPersonHandlerName = FirstPersonModeHandler.HandlerNameStatic();
+            CurrentHandlerName = (CurrentHandlerName == firstPersonHandlerName ? ThirdPersonHandler.HandlerNameStatic() : firstPersonHandlerName);
+        }
+
         for (int i = 0; i <= 9; i++)
         {
             KeyCode key = KeyCode.Alpha0 + i;
