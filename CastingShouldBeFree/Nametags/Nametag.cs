@@ -45,10 +45,11 @@ public class Nametag : MonoBehaviour
         RigUtils.OnRigNameChange -= OnNameUpdate;
     }
 
-    private void Start()
+    private void Awake()
     {
         nametagParent = new GameObject("NametagParent").transform;
         nametagParent.SetParent(transform);
+        nametagParent.localPosition = new Vector3(0f, 0.5f, 0f);
 
         associatedRig = GetComponent<VRRig>();
 
@@ -129,17 +130,19 @@ public class Nametag : MonoBehaviour
 
     private void LateUpdate()
     {
-        int fpsActual = associatedRig.fps;
+        int fpsActual = associatedRig.isLocal ? (int)(1f / Time.unscaledDeltaTime) : associatedRig.fps;
         string colour = fpsActual > 60 ? fpsActual > 72 ? "green" : "orange" : "red";
         string fps = $"<color={colour}>{fpsActual} FPS</color>";
-            
+        
+        thirdPersonNametag.Nametag.LookAt(Plugin.Instance.PCCamera);
+        thirdPersonNametag.Nametag.Rotate(0f, 180f, 0f);
+        thirdPersonNametag.FPSText.text = fps;
+        
         if (!associatedRig.isLocal)
         {
             firstPersonNametag.Nametag.LookAt(GTPlayer.Instance.headCollider.transform);
+            firstPersonNametag.Nametag.Rotate(0f, 180f, 0f);
             firstPersonNametag.FPSText.text = fps;
         }
-        
-        thirdPersonNametag.Nametag.LookAt(Plugin.Instance.PCCamera);
-        thirdPersonNametag.FPSText.text = fps;
     }
 }

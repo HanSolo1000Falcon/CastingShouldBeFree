@@ -7,11 +7,11 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace CastingShouldBeFree.Core.Interface;
+namespace CastingShouldBeFree.Core.Interface.PanelHandlers;
 
 public class SettingsHandler : Singleton<SettingsHandler>
 {
-    private void Start()
+    protected override void Awake()
     {
         Transform leaderboard = GUIHandler.Instance.Canvas.transform.Find("Leaderboard");
 

@@ -3,6 +3,7 @@ using CastingShouldBeFree.Core.Interface;
 using CastingShouldBeFree.Core.ModeHandlers;
 using CastingShouldBeFree.Patches;
 using CastingShouldBeFree.Utils;
+using TMPro;
 using UnityEngine;
 
 namespace CastingShouldBeFree.Nametags;
@@ -50,6 +51,7 @@ public class NametagHandler : Singleton<NametagHandler>
         RigUtils.OnRigSpawned += OnRigSpawned;
         RigUtils.OnRigCached += OnRigCached;
         GUIHandler.Instance.OnCastedRigChange += OnCastedRigChange;
+        GUIHandler.Instance.OnCurrentHandlerChange += OnCurrentHandlerChange;
     }
 
     private void OnRigSpawned(VRRig rig)
@@ -79,5 +81,14 @@ public class NametagHandler : Singleton<NametagHandler>
 
         if (nametags.TryGetValue(currentRig, out Nametag nametag2))
             nametag2.enabled = GUIHandler.Instance.CurrentHandlerName != FirstPersonModeHandler.HandlerNameStatic();
+    }
+
+    private void OnCurrentHandlerChange(string handlerName)
+    {
+        foreach (var nametag in nametags)
+        {
+            if (nametag.Key == GUIHandler.Instance.CastedRig)
+                nametag.Value.enabled = handlerName != FirstPersonModeHandler.HandlerNameStatic();
+        }
     }
 }

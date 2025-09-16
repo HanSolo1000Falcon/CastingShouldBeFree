@@ -30,8 +30,20 @@
         <Reference Include="clipper_library">
             <HintPath>$(GameAssemblyPath)\clipper_library.dll</HintPath>
         </Reference>
+        <Reference Include="LIV.LCK">
+            <HintPath>$(GameAssemblyPath)\LIV.LCK.dll</HintPath>
+        </Reference>
+        <Reference Include="LIV.LCK_GorillaTag">
+            <HintPath>$(GameAssemblyPath)\LIV.LCK_GorillaTag.dll</HintPath>
+        </Reference>
+        <Reference Include="LIV.NativeAudioBridge">
+            <HintPath>$(GameAssemblyPath)\LIV.NativeAudioBridge.dll</HintPath>
+        </Reference>
         <Reference Include="Mono.Security">
             <HintPath>$(GameAssemblyPath)\Mono.Security.dll</HintPath>
+        </Reference>
+        <Reference Include="Newtonsoft.Json">
+          <HintPath>$(GameAssemblyPath)\Newtonsoft.Json.dll</HintPath>
         </Reference>
         <Reference Include="Oculus.Platform">
             <HintPath>$(GameAssemblyPath)\Oculus.Platform.dll</HintPath>
