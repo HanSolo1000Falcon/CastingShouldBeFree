@@ -7,6 +7,21 @@ namespace CastingShouldBeFree.Nametags;
 
 public class Nametag : MonoBehaviour
 {
+    private bool _showTpTag = true;
+
+    public bool ShowTpTag
+    {
+        get => _showTpTag;
+        set
+        {
+            if (value != _showTpTag)
+            {
+                _showTpTag = value;
+                thirdPersonNametag.Nametag.gameObject.SetActive(value);
+            }
+        }
+    }
+    
     private bool hasInit;
 
     private Transform nametagParent;
@@ -133,10 +148,13 @@ public class Nametag : MonoBehaviour
         int fpsActual = associatedRig.isLocal ? (int)(1f / Time.unscaledDeltaTime) : associatedRig.fps;
         string colour = fpsActual > 60 ? fpsActual > 72 ? "green" : "orange" : "red";
         string fps = $"<color={colour}>{fpsActual} FPS</color>";
-        
-        thirdPersonNametag.Nametag.LookAt(Plugin.Instance.PCCamera);
-        thirdPersonNametag.Nametag.Rotate(0f, 180f, 0f);
-        thirdPersonNametag.FPSText.text = fps;
+
+        if (ShowTpTag)
+        {
+            thirdPersonNametag.Nametag.LookAt(Plugin.Instance.PCCamera);
+            thirdPersonNametag.Nametag.Rotate(0f, 180f, 0f);
+            thirdPersonNametag.FPSText.text = fps;
+        }
         
         if (!associatedRig.isLocal)
         {
