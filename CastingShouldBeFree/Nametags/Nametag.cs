@@ -92,8 +92,11 @@ public class Nametag : MonoBehaviour
 
     private NametagComponents SetUpNametagComponents(bool firstPerson)
     {
-        NametagComponents nametagComponents = new();
-        nametagComponents.Nametag = Instantiate(NametagHandler.Instance.NametagPrefab, nametagParent).transform;
+        NametagComponents nametagComponents = new()
+        {
+            Nametag = Instantiate(NametagHandler.Instance.NametagPrefab, nametagParent).transform
+        };
+        
         nametagComponents.Nametag.gameObject.name = firstPerson ? "FirstPersonNametag" : "ThirdPersonNametag";
         nametagComponents.Nametag.transform.localPosition = Vector3.zero;
 
