@@ -6,5 +6,5 @@ namespace CastingShouldBeFree.Patches;
 [HarmonyPatch(typeof(VRRig), "IUserCosmeticsCallback.OnGetUserCosmetics")]
 public static class OnRigCosmeticsLoadPatch
 {
-    private static void Postfix(VRRig __instance) => RigUtils.OnRigCosmeticsLoad?.Invoke(__instance);
+    private static void Postfix(VRRig __instance, string cosmetics) => RigUtils.OnRigCosmeticsLoad?.Invoke(__instance);
 }

@@ -140,6 +140,7 @@ public class Nametag : MonoBehaviour
 
         if (concat.Contains("s. first login")) return "[STEAM]";
         if (concat.Contains("first login") || concat.Contains("game-purchase") || associatedRig.OwningNetPlayer.GetPlayerRef().CustomProperties.Count > 1) return "[PC]";
+        if (platform == "[PC]" || platform == "[STEAM]") return platform;
         return "[STANDALONE]";
     }
 
