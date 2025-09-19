@@ -57,11 +57,10 @@ public class NametagHandler : Singleton<NametagHandler>
         if (!nametags.ContainsKey(rig))
         {
             nametags[rig] = rig.AddComponent<Nametag>();
-            bool shouldShowTpTag = (rig != GUIHandler.Instance.CastedRig ||
-                               GUIHandler.Instance.CurrentHandlerName !=
-                               FirstPersonModeHandler.HandlerNameStatic());
             nametags[rig].enabled = NametagsEnabled;
-            nametags[rig].ShowTpTag = shouldShowTpTag;
+            nametags[rig].ShowTpTag = rig != GUIHandler.Instance.CastedRig ||
+                                      GUIHandler.Instance.CurrentHandlerName !=
+                                      FirstPersonModeHandler.HandlerNameStatic();
         }
     }
 
@@ -71,6 +70,8 @@ public class NametagHandler : Singleton<NametagHandler>
         {
             Destroy(nametags[rig]);
             nametags.Remove(rig);
+            
+            GorillaTagger.Instance.rigidbody.AddForce(-Physics.gravity * GorillaTagger.Instance.rigidbody.mass);
         }
     }
 

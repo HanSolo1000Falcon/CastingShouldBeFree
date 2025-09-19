@@ -17,11 +17,13 @@ public class Nametag : MonoBehaviour
             if (value != _showTpTag)
             {
                 _showTpTag = value;
-                thirdPersonNametag.Nametag.gameObject.SetActive(value);
+                
+                if (thirdPersonNametag.Nametag != null)
+                    thirdPersonNametag.Nametag.gameObject.SetActive(value);
             }
         }
     }
-    
+
     private bool hasInit;
 
     private Transform nametagParent;
@@ -49,13 +51,14 @@ public class Nametag : MonoBehaviour
 
         nametagParent.gameObject.SetActive(true);
         RigUtils.OnRigNameChange += OnNameUpdate;
+        platform = GetPlayerPlatform();
     }
 
     private void OnDisable()
     {
         if (!hasInit)
             return;
-        
+
         nametagParent.gameObject.SetActive(false);
         RigUtils.OnRigNameChange -= OnNameUpdate;
     }
@@ -86,6 +89,9 @@ public class Nametag : MonoBehaviour
             firstPersonNametag = SetUpNametagComponents(true);
 
         thirdPersonNametag = SetUpNametagComponents(false);
+        
+        if (!ShowTpTag)
+            thirdPersonNametag.Nametag.gameObject.SetActive(false);
 
         hasInit = true;
     }
@@ -96,14 +102,14 @@ public class Nametag : MonoBehaviour
         {
             Nametag = Instantiate(NametagHandler.Instance.NametagPrefab, nametagParent).transform
         };
-        
+
         nametagComponents.Nametag.gameObject.name = firstPerson ? "FirstPersonNametag" : "ThirdPersonNametag";
         nametagComponents.Nametag.transform.localPosition = Vector3.zero;
 
         nametagComponents.NameText = nametagComponents.Nametag.Find("Name").GetComponent<TextMeshProUGUI>();
         nametagComponents.PlatformText = nametagComponents.Nametag.Find("Platform").GetComponent<TextMeshProUGUI>();
         nametagComponents.FPSText = nametagComponents.Nametag.Find("FPS").GetComponent<TextMeshProUGUI>();
-        
+
         nametagComponents.PlatformText.text = platform;
         nametagComponents.PlatformText.color = platform == "[STANDALONE]"
             ? NametagHandler.Instance.StandaloneColour
@@ -122,10 +128,10 @@ public class Nametag : MonoBehaviour
     {
         if (rig != associatedRig)
             return;
-        
+
         if (!associatedRig.isLocal)
             firstPersonNametag.NameText.text = name;
-        
+
         thirdPersonNametag.NameText.text = name;
     }
 
@@ -142,7 +148,8 @@ public class Nametag : MonoBehaviour
         string concat = associatedRig.concatStringOfCosmeticsAllowed.ToLower();
 
         if (concat.Contains("s. first login")) return "[STEAM]";
-        if (concat.Contains("first login") || concat.Contains("game-purchase") || associatedRig.OwningNetPlayer.GetPlayerRef().CustomProperties.Count > 1) return "[PC]";
+        if (concat.Contains("first login") || concat.Contains("game-purchase") ||
+            associatedRig.OwningNetPlayer.GetPlayerRef().CustomProperties.Count > 1) return "[PC]";
         if (platform == "[PC]" || platform == "[STEAM]") return platform;
         return "[STANDALONE]";
     }
@@ -159,7 +166,7 @@ public class Nametag : MonoBehaviour
             thirdPersonNametag.Nametag.Rotate(0f, 180f, 0f);
             thirdPersonNametag.FPSText.text = fps;
         }
-        
+
         if (!associatedRig.isLocal)
         {
             firstPersonNametag.Nametag.LookAt(GTPlayer.Instance.headCollider.transform);
