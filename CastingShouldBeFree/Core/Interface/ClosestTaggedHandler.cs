@@ -13,7 +13,7 @@ public class ClosestTaggedHandler : Singleton<ClosestTaggedHandler>
 
     private void LateUpdate()
     {
-        if (TagManager.Instance.TaggedRigs.Contains(GUIHandler.Instance.CastedRig))
+        if (TagManager.Instance.TaggedRigs.Contains(CoreHandler.Instance.CastedRig))
         {
             closestTaggedText.text = "Casted Player is <color=orange>Tagged!</color>";
             return;
@@ -29,10 +29,10 @@ public class ClosestTaggedHandler : Singleton<ClosestTaggedHandler>
 
         foreach (VRRig rig in TagManager.Instance.TaggedRigs)
         {
-            if (rig == GUIHandler.Instance.CastedRig)
+            if (rig == CoreHandler.Instance.CastedRig)
                 continue;
 
-            float distance = Vector3.Distance(rig.transform.position, GUIHandler.Instance.CastedRig.transform.position);
+            float distance = Vector3.Distance(rig.transform.position, CoreHandler.Instance.CastedRig.transform.position);
 
             if (distance < closestTaggedDistance)
                 closestTaggedDistance = distance;

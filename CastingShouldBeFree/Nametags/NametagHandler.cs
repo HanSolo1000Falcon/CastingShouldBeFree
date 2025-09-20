@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using CastingShouldBeFree.Core;
 using CastingShouldBeFree.Core.Interface;
 using CastingShouldBeFree.Core.Mode_Handlers;
 using CastingShouldBeFree.Patches;
@@ -23,8 +24,8 @@ public class NametagHandler : Singleton<NametagHandler>
                 foreach (var nametag in nametags)
                 {
                     nametag.Value.enabled = value;
-                    nametag.Value.ShowTpTag = nametag.Key != GUIHandler.Instance.CastedRig ||
-                                              GUIHandler.Instance.CurrentHandlerName !=
+                    nametag.Value.ShowTpTag = nametag.Key != CoreHandler.Instance.CastedRig ||
+                                              CoreHandler.Instance.CurrentHandlerName !=
                                               FirstPersonModeHandler.HandlerNameStatic();
                 }
 
@@ -47,8 +48,8 @@ public class NametagHandler : Singleton<NametagHandler>
 
         RigUtils.OnRigSpawned += OnRigSpawned;
         RigUtils.OnRigCached += OnRigCached;
-        GUIHandler.Instance.OnCastedRigChange += OnCastedRigChange;
-        GUIHandler.Instance.OnCurrentHandlerChange += OnCurrentHandlerChange;
+        CoreHandler.Instance.OnCastedRigChange += OnCastedRigChange;
+        CoreHandler.Instance.OnCurrentHandlerChange += OnCurrentHandlerChange;
     }
 
     private void OnRigSpawned(VRRig rig)
@@ -57,8 +58,8 @@ public class NametagHandler : Singleton<NametagHandler>
         {
             nametags[rig] = rig.AddComponent<Nametag>();
             nametags[rig].enabled = NametagsEnabled;
-            nametags[rig].ShowTpTag = rig != GUIHandler.Instance.CastedRig ||
-                                      GUIHandler.Instance.CurrentHandlerName !=
+            nametags[rig].ShowTpTag = rig != CoreHandler.Instance.CastedRig ||
+                                      CoreHandler.Instance.CurrentHandlerName !=
                                       FirstPersonModeHandler.HandlerNameStatic();
         }
     }
@@ -82,7 +83,7 @@ public class NametagHandler : Singleton<NametagHandler>
         if (nametags.TryGetValue(currentRig, out Nametag nametag2))
         {
             nametag2.enabled = NametagsEnabled;
-            nametag2.ShowTpTag = GUIHandler.Instance.CurrentHandlerName != FirstPersonModeHandler.HandlerNameStatic();
+            nametag2.ShowTpTag = CoreHandler.Instance.CurrentHandlerName != FirstPersonModeHandler.HandlerNameStatic();
         }
     }
 
@@ -90,7 +91,7 @@ public class NametagHandler : Singleton<NametagHandler>
     {
         foreach (var nametag in nametags)
         {
-            if (nametag.Key == GUIHandler.Instance.CastedRig)
+            if (nametag.Key == CoreHandler.Instance.CastedRig)
             {
                 nametag.Value.enabled = NametagsEnabled;
                 nametag.Value.ShowTpTag = handlerName != FirstPersonModeHandler.HandlerNameStatic();

@@ -16,60 +16,7 @@ namespace CastingShouldBeFree.Core.Interface;
 
 public class GUIHandler : Singleton<GUIHandler>
 {
-    #region Backing Fields
-
-    private VRRig _castedRig;
-    private string _currentHandlerName;
-
-    #endregion
-
-    #region Getters and Setters
-
-    public VRRig CastedRig
-    {
-        get => _castedRig;
-        set
-        {
-            if (_castedRig != value)
-            {
-                string playerName = value.OwningNetPlayer != null ? value.OwningNetPlayer.NickName : value.playerText1.text;
-                currentPlayerText.text = $"Name: <color=#{ColorUtility.ToHtmlStringRGB(value.playerColor)}>{playerName}</color>";
-                isPlayerTaggedText.text =
-                    $"Is Tagged? {(value.IsTagged() ? "<color=green>Yes!</color>" : "<color=red>No!</color>")}";
-                OnCastedRigChange?.Invoke(value, _castedRig);
-                _castedRig = value;
-            }
-        }
-    }
-
-    public string CurrentHandlerName
-    {
-        get => _currentHandlerName;
-        set
-        {
-            if (_currentHandlerName != value)
-            {
-                _currentHandlerName = value;
-                currentModeText.text = $"Current Mode: {value}";
-
-                foreach (string modeHandlerName in modeHandlers.Keys)
-                    modeHandlers[modeHandlerName].enabled = modeHandlerName == value;
-                
-                OnCurrentHandlerChange?.Invoke(value);
-            }
-        }
-    }
-
-    #endregion
-
-    public Action<string> OnCurrentHandlerChange;
-    public Action<VRRig, VRRig> OnCastedRigChange;
-
-    public int MaxSmoothing { get; private set; }
-
     public GameObject Canvas { get; private set; }
-
-    private Dictionary<string, ModeHandlerBase> modeHandlers = new();
 
     private bool hasInitEventSystem;
 
@@ -122,41 +69,25 @@ public class GUIHandler : Singleton<GUIHandler>
         RigUtils.OnRigNameChange += UpdatePlayerName;
         RigUtils.OnMatIndexChange += UpdatePlayerTagState;
         RigUtils.OnRigColourChange += UpdatePlayerColour;
+        
+        CoreHandler.Instance.OnCastedRigChange += OnCastedRigChange;
+        CoreHandler.Instance.OnCurrentHandlerChange += (handlerName) => currentModeText.text = $"Current Mode: {handlerName}";
 
         SetUpOtherPanels(mainPanel);
 
         Canvas.SetActive(false);
 
-        GameObject modeHandlersComponents = new GameObject("Casting Should Be Free Mode Handlers");
-
         GameObject modeButtonPrefab = Plugin.Instance.CastingBundle.LoadAsset<GameObject>("CameraModeButton");
         Transform modeContent = mainPanel.transform.Find("CameraModes/Viewport/Content");
 
-        Type[] modeHandlerTypes = Assembly.GetExecutingAssembly().GetTypes().Where(type =>
-            type.IsClass && !type.IsAbstract && typeof(ModeHandlerBase).IsAssignableFrom(type)).ToArray();
-
-        foreach (Type modeHandlerType in modeHandlerTypes)
+        foreach (var modeHandlerPair in CoreHandler.Instance.ModeHandlers)
         {
-            Component modeHandlerComponent = modeHandlersComponents.AddComponent(modeHandlerType);
-
-            if (modeHandlerComponent is ModeHandlerBase modeHandler)
-            {
-                modeHandler.enabled = false;
-                modeHandlers[modeHandler.HandlerName] = modeHandler;
-
-                GameObject modeButton = Instantiate(modeButtonPrefab, modeContent);
-                modeButton.GetComponentInChildren<TextMeshProUGUI>().text = modeHandler.HandlerName;
-                modeButton.GetComponent<Button>().onClick
-                    .AddListener(() => CurrentHandlerName = modeHandler.HandlerName);
-            }
-            else
-            {
-                Debug.Log(modeHandlerType.Name + " isn't a mode handler, removing.");
-                Destroy(modeHandlerComponent);
-            }
+            GameObject modeButton = Instantiate(modeButtonPrefab, modeContent);
+            modeButton.GetComponentInChildren<TextMeshProUGUI>().text = modeHandlerPair.Value.HandlerName;
+            modeButton.GetComponent<Button>().onClick.AddListener(() => CoreHandler.Instance.CurrentHandlerName = modeHandlerPair.Value.HandlerName);
         }
 
-        CurrentHandlerName = FirstPersonModeHandler.HandlerNameStatic();
+        CoreHandler.Instance.CurrentHandlerName = FirstPersonModeHandler.HandlerNameStatic();
 
         RenderTexture miniMapRenderTexture =
             Instantiate(Plugin.Instance.CastingBundle.LoadAsset<RenderTexture>("MiniMapRenderTexture"));
@@ -200,7 +131,7 @@ public class GUIHandler : Singleton<GUIHandler>
 
         currentModeText = mainPanel.transform.Find("CurrentMode").GetComponent<TextMeshProUGUI>();
 
-        MaxSmoothing = (int)smoothingSlider.maxValue + 1;
+        CoreHandler.Instance.MaxSmoothing = (int)smoothingSlider.maxValue + 1;
 
         smoothingSlider.onValueChanged.AddListener((value) =>
         {
@@ -266,9 +197,9 @@ public class GUIHandler : Singleton<GUIHandler>
         });
     }
 
-    private void OnEventSysemInit()
+    private void OnEventSystemInit()
     {
-        CastedRig = VRRig.LocalRig;
+        CoreHandler.Instance.CastedRig = VRRig.LocalRig;
     }
 
     private void OnGUI()
@@ -289,7 +220,7 @@ public class GUIHandler : Singleton<GUIHandler>
             if (!hasInitEventSystem)
             {
                 hasInitEventSystem = true;
-                OnEventSysemInit();
+                OnEventSystemInit();
                 Canvas.SetActive(true);
             }
             else
@@ -301,7 +232,7 @@ public class GUIHandler : Singleton<GUIHandler>
         if (UnityInput.Current.GetKeyDown(KeyCode.P))
         {
             string firstPersonHandlerName = FirstPersonModeHandler.HandlerNameStatic();
-            CurrentHandlerName = (CurrentHandlerName == firstPersonHandlerName ? ThirdPersonHandler.HandlerNameStatic() : firstPersonHandlerName);
+            CoreHandler.Instance.CurrentHandlerName = (CoreHandler.Instance.CurrentHandlerName == firstPersonHandlerName ? ThirdPersonHandler.HandlerNameStatic() : firstPersonHandlerName);
         }
 
         for (int i = 0; i <= 9; i++)
@@ -309,7 +240,7 @@ public class GUIHandler : Singleton<GUIHandler>
             KeyCode key = KeyCode.Alpha0 + i;
             if (UnityInput.Current.GetKeyDown(key) && SetColourPatch.SpawnedRigs.Count > i)
             {
-                CastedRig = SetColourPatch.SpawnedRigs[i];
+                CoreHandler.Instance.CastedRig = SetColourPatch.SpawnedRigs[i];
                 break;
             }
         }
@@ -327,7 +258,7 @@ public class GUIHandler : Singleton<GUIHandler>
     private void OnRigSpawned(VRRig rig)
     {
         GameObject button = Instantiate(playerButtonPrefab, playerContent);
-        button.GetComponent<Button>().onClick.AddListener(() => CastedRig = rig);
+        button.GetComponent<Button>().onClick.AddListener(() => CoreHandler.Instance.CastedRig = rig);
         button.GetComponentInChildren<TextMeshProUGUI>().text = rig.OwningNetPlayer?.NickName;
         rigButtons[rig] = button;
 
@@ -346,8 +277,8 @@ public class GUIHandler : Singleton<GUIHandler>
             rigButtons.Remove(rig);
         }
 
-        if (CastedRig == rig)
-            CastedRig = VRRig.LocalRig;
+        if (CoreHandler.Instance.CastedRig == rig)
+            CoreHandler.Instance.CastedRig = VRRig.LocalRig;
 
         if (leaderboardEntries.ContainsKey(rig))
         {
@@ -367,7 +298,7 @@ public class GUIHandler : Singleton<GUIHandler>
         if (rigButtons.TryGetValue(rig, out GameObject button))
             button.GetComponentInChildren<TextMeshProUGUI>().text = playerName;
 
-        if (CastedRig == rig)
+        if (CoreHandler.Instance.CastedRig == rig)
             currentPlayerText.text =
                 $"Name: <color=#{ColorUtility.ToHtmlStringRGB(rig.playerColor)}>{playerName}</color>";
 
@@ -382,7 +313,7 @@ public class GUIHandler : Singleton<GUIHandler>
             button.transform.Find("ColourPanel").GetComponent<Image>().color =
                 rig.IsTagged() ? new Color(1f, 0.3288f, 0f, 1f) : rig.playerColor;
 
-        if (CastedRig == rig)
+        if (CoreHandler.Instance.CastedRig == rig)
             isPlayerTaggedText.text =
                 $"Is Tagged? {(rig.IsTagged() ? "<color=green>Yes!</color>" : "<color=red>No!</color>")}";
     }
@@ -393,11 +324,19 @@ public class GUIHandler : Singleton<GUIHandler>
             button.transform.Find("ColourPanel").GetComponent<Image>().color =
                 rig.IsTagged() ? new Color(1f, 0.3288f, 0f, 1f) : rig.playerColor;
 
-        if (CastedRig == rig)
+        if (CoreHandler.Instance.CastedRig == rig)
         {
             string playerName = rig.OwningNetPlayer != null ? rig.OwningNetPlayer.NickName : rig.playerText1.text;
             currentPlayerText.text =
                 $"Name: <color=#{ColorUtility.ToHtmlStringRGB(rig.playerColor)}>{playerName}</color>";
         }
+    }
+
+    private void OnCastedRigChange(VRRig currentRig, VRRig lastRig)
+    {
+        string playerName = currentRig.OwningNetPlayer != null ? currentRig.OwningNetPlayer.NickName : currentRig.playerText1.text;
+        currentPlayerText.text = $"Name: <color=#{ColorUtility.ToHtmlStringRGB(currentRig.playerColor)}>{playerName}</color>";
+        isPlayerTaggedText.text =
+            $"Is Tagged? {(currentRig.IsTagged() ? "<color=green>Yes!</color>" : "<color=red>No!</color>")}";
     }
 }

@@ -70,6 +70,6 @@ public class ScoreboardHandler : Singleton<ScoreboardHandler>
         }
 
         if (currentTimerMode == TimerMode.Timing)
-            currentTimerMode = TimerMode.Paused;
+            timer.GetComponentInChildren<Button>().onClick?.Invoke();
     }
 }

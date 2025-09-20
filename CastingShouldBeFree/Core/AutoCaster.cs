@@ -63,7 +63,7 @@ public class AutoCaster : Singleton<AutoCaster>
             }
         }
 
-        GUIHandler.Instance.CastedRig = chosenRig;
+        CoreHandler.Instance.CastedRig = chosenRig;
     }
 
     private float GetTagDistance(VRRig rig)

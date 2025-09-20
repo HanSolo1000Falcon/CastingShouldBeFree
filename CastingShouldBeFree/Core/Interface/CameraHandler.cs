@@ -8,7 +8,7 @@ public class CameraHandler : Singleton<CameraHandler>
 {
     public int SmoothingFactor;
 
-    public int GetRealSmoothingFactor() => -(SmoothingFactor - GUIHandler.Instance.MaxSmoothing);
+    public int GetRealSmoothingFactor() => -(SmoothingFactor - CoreHandler.Instance.MaxSmoothing);
     
     private void Start()
     {

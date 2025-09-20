@@ -74,7 +74,7 @@ public class Plugin : BaseUnityPlugin
 
         GameObject componentHolder = new GameObject("Casting Should Be Free");
         componentHolder.AddComponent<TagManager>();
-        componentHolder.AddComponent<GUIHandler>();
+        componentHolder.AddComponent<CoreHandler>();
         componentHolder.AddComponent<NametagHandler>();
         componentHolder.AddComponent<AutoCaster>();
 

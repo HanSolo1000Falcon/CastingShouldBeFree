@@ -15,11 +15,11 @@ public class ThirdPersonHandler : ModeHandlerBase
 
     private void LateUpdate()
     {
-        if (GUIHandler.Instance.CastedRig == null)
+        if (CoreHandler.Instance.CastedRig == null)
             return;
         
-        targetPosition = GUIHandler.Instance.CastedRig.bodyRenderer.transform.TransformPoint(new Vector3(X, 0.3f, -1f));
-        targetRotation = GUIHandler.Instance.CastedRig.headMesh.transform.rotation;
+        targetPosition = CoreHandler.Instance.CastedRig.bodyRenderer.transform.TransformPoint(new Vector3(X, 0.3f, -1f));
+        targetRotation = CoreHandler.Instance.CastedRig.headMesh.transform.rotation;
         
         Vector3 forward = targetRotation * Vector3.forward;
         targetRotation = Quaternion.LookRotation(forward, Vector3.up);

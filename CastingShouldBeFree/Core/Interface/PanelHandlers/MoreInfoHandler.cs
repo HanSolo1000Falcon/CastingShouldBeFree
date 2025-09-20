@@ -12,10 +12,10 @@ public class MoreInfoHandler : Singleton<MoreInfoHandler>
         modsText = transform.Find("ModsInstalled/InstalledMods").GetComponent<TextMeshProUGUI>();
         modsText.text = "<color=red>No</color> Player Selected";
 
-        if (GUIHandler.Instance.CastedRig != null)
-            OnCastedRigChange(GUIHandler.Instance.CastedRig, null);
+        if (CoreHandler.Instance.CastedRig != null)
+            OnCastedRigChange(CoreHandler.Instance.CastedRig, null);
         
-        GUIHandler.Instance.OnCastedRigChange += OnCastedRigChange;
+        CoreHandler.Instance.OnCastedRigChange += OnCastedRigChange;
     }
 
     private void OnCastedRigChange(VRRig currentRig, VRRig lastRig)

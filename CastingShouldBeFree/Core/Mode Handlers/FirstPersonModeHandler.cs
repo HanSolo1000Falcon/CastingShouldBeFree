@@ -13,17 +13,17 @@ public class FirstPersonModeHandler : ModeHandlerBase
 
     private void OnEnable()
     {
-        OnCastedRigChange(GUIHandler.Instance.CastedRig, null);
+        OnCastedRigChange(CoreHandler.Instance.CastedRig, null);
         CameraHandler.Instance.ToggleVisibility(false);
-        GUIHandler.Instance.OnCastedRigChange += OnCastedRigChange;
+        CoreHandler.Instance.OnCastedRigChange += OnCastedRigChange;
         RigUtils.OnRigCosmeticsChange += OnRigCosmeticsUpdate;
     }
 
     private void OnDisable()
     {
-        GUIHandler.Instance.OnCastedRigChange -= OnCastedRigChange;
+        CoreHandler.Instance.OnCastedRigChange -= OnCastedRigChange;
         RigUtils.OnRigCosmeticsChange -= OnRigCosmeticsUpdate;
-        ToggleFaceCosmetics(GUIHandler.Instance.CastedRig, true);
+        ToggleFaceCosmetics(CoreHandler.Instance.CastedRig, true);
         CameraHandler.Instance.ToggleVisibility(true);
     }
 
@@ -40,7 +40,7 @@ public class FirstPersonModeHandler : ModeHandlerBase
 
     private void OnRigCosmeticsUpdate(VRRig rig)
     {
-        if (rig != GUIHandler.Instance.CastedRig)
+        if (rig != CoreHandler.Instance.CastedRig)
             return;
         
         ToggleFaceCosmetics(rig, false);
@@ -48,10 +48,10 @@ public class FirstPersonModeHandler : ModeHandlerBase
 
     private void LateUpdate()
     {
-        if (GUIHandler.Instance.CastedRig == null)
+        if (CoreHandler.Instance.CastedRig == null)
             return;
         
-        Quaternion targetRotation = GUIHandler.Instance.CastedRig.headMesh.transform.rotation;
+        Quaternion targetRotation = CoreHandler.Instance.CastedRig.headMesh.transform.rotation;
 
         if (RollLock)
         {
@@ -67,7 +67,7 @@ public class FirstPersonModeHandler : ModeHandlerBase
 
         CameraHandler.Instance.transform.rotation = targetRotation;
         CameraHandler.Instance.transform.position =
-            GUIHandler.Instance.CastedRig.headMesh.transform.TransformPoint(new Vector3(0f, 0.15f, 0f));
+            CoreHandler.Instance.CastedRig.headMesh.transform.TransformPoint(new Vector3(0f, 0.15f, 0f));
     }
 
     private void ToggleFaceCosmetics(VRRig rig, bool toggled)
