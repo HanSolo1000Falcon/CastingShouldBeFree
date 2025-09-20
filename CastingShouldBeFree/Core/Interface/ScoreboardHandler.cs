@@ -62,7 +62,14 @@ public class ScoreboardHandler : Singleton<ScoreboardHandler>
         {
             timerTime += Time.deltaTime;
             timer.text = timerTime.ToString("F", CultureInfo.InvariantCulture);
+            
+            if (TagManager.Instance.UnTaggedRigs.Count < 1)
+                yield break;
+            
             yield return new WaitForFixedUpdate();
         }
+
+        if (currentTimerMode == TimerMode.Timing)
+            currentTimerMode = TimerMode.Paused;
     }
 }

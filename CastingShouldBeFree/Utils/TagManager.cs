@@ -10,10 +10,22 @@ public class TagManager : Singleton<TagManager>
     private void Start()
     {
         RigUtils.OnMatIndexChange += OnMatIndexChange;
+        RigUtils.OnRigSpawned += OnRigSpawned;
         RigUtils.OnRigCached += OnRigCached;
     }
     
     private void OnMatIndexChange(VRRig rig)
+    {
+        TaggedRigs.Remove(rig);
+        UnTaggedRigs.Remove(rig);
+
+        if (rig.IsTagged())
+            TaggedRigs.Add(rig);
+        else
+            UnTaggedRigs.Add(rig);
+    }
+
+    private void OnRigSpawned(VRRig rig)
     {
         TaggedRigs.Remove(rig);
         UnTaggedRigs.Remove(rig);

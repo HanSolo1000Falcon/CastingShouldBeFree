@@ -53,6 +53,14 @@ public class FirstPersonModeHandler : ModeHandlerBase
         
         Quaternion targetRotation = GUIHandler.Instance.CastedRig.headMesh.transform.rotation;
 
+        if (RollLock)
+        {
+            Vector3 forward = targetRotation * Vector3.forward;
+            targetRotation = Quaternion.LookRotation(forward, Vector3.up);
+            Vector3 euler = targetRotation.eulerAngles;
+            targetRotation = Quaternion.Euler(euler.x, euler.y, 0f);
+        }
+
         if (CameraHandler.Instance.SmoothingFactor > 0)
             targetRotation = Quaternion.Slerp(CameraHandler.Instance.transform.rotation, targetRotation,
                 Time.deltaTime * CameraHandler.Instance.GetRealSmoothingFactor());

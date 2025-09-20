@@ -19,7 +19,12 @@ public class ThirdPersonHandler : ModeHandlerBase
             return;
         
         targetPosition = GUIHandler.Instance.CastedRig.bodyRenderer.transform.TransformPoint(new Vector3(X, 0.3f, -1f));
-        targetRotation = GUIHandler.Instance.CastedRig.bodyRenderer.transform.rotation;
+        targetRotation = GUIHandler.Instance.CastedRig.headMesh.transform.rotation;
+        
+        Vector3 forward = targetRotation * Vector3.forward;
+        targetRotation = Quaternion.LookRotation(forward, Vector3.up);
+        Vector3 euler = targetRotation.eulerAngles;
+        targetRotation = Quaternion.Euler(euler.x, euler.y, 0f);
 
         if (CameraHandler.Instance.SmoothingFactor > 0)
         {

@@ -79,6 +79,15 @@ public class SettingsHandler : Singleton<SettingsHandler>
                         .GetComponentInChildren<TextMeshProUGUI>().text =
                     $"Roll Lock\n{(ModeHandlerBase.RollLock ? "<color=green>Enabled</color>" : "<color=red>Disabled</color>")}";
             });
+        
+        transform.Find("SettingsGrid/Viewport/Content/AutoCasting").GetComponent<Button>().onClick
+            .AddListener(() =>
+            {
+                AutoCaster.Instance.IsEnabled = !AutoCaster.Instance.IsEnabled;
+                transform.Find("SettingsGrid/Viewport/Content/AutoCasting")
+                        .GetComponentInChildren<TextMeshProUGUI>().text =
+                    $"Auto Casting\n{(AutoCaster.Instance.IsEnabled ? "<color=green>Enabled</color>" : "<color=red>Disabled</color>")}";
+            });
 
         Transform thirdPersonSliderPanel = transform.Find("ThirdPersonPanel");
 

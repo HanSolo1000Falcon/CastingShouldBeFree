@@ -3,6 +3,7 @@ using System.IO;
 using System.Net.Http;
 using System.Reflection;
 using BepInEx;
+using CastingShouldBeFree.Core;
 using CastingShouldBeFree.Core.Interface;
 using CastingShouldBeFree.Nametags;
 using CastingShouldBeFree.Utils;
@@ -75,6 +76,7 @@ public class Plugin : BaseUnityPlugin
         componentHolder.AddComponent<TagManager>();
         componentHolder.AddComponent<GUIHandler>();
         componentHolder.AddComponent<NametagHandler>();
+        componentHolder.AddComponent<AutoCaster>();
 
         using HttpClient httpClient = new();
         HttpResponseMessage knownModsResponse = httpClient.GetAsync(GorillaInfoURL + "KnownMods.txt").Result;
