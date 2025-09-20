@@ -90,6 +90,14 @@ public class Plugin : BaseUnityPlugin
         using (Stream stream = knownCheatsResponse.Content.ReadAsStreamAsync().Result)
         using (StreamReader reader = new(stream))
             KnownCheats = JsonConvert.DeserializeObject<Dictionary<string, string>>(reader.ReadToEnd());
+
+        RigUtils.OnRigCosmeticsLoad += (rig) =>
+        {
+            Nametag nametag = rig.GetComponent<Nametag>();
+            
+            if (nametag is not null)
+                nametag.UpdatePlayerPlatform();
+        };
     }
 
     private void Update()

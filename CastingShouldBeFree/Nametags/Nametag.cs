@@ -18,7 +18,7 @@ public class Nametag : MonoBehaviour
             {
                 _showTpTag = value;
                 
-                if (thirdPersonNametag.Nametag != null)
+                if (hasInit)
                     thirdPersonNametag.Nametag.gameObject.SetActive(value);
             }
         }
@@ -51,7 +51,7 @@ public class Nametag : MonoBehaviour
 
         nametagParent.gameObject.SetActive(true);
         RigUtils.OnRigNameChange += OnNameUpdate;
-        platform = GetPlayerPlatform();
+        UpdatePlayerPlatform();
     }
 
     private void OnDisable()
@@ -63,6 +63,26 @@ public class Nametag : MonoBehaviour
         RigUtils.OnRigNameChange -= OnNameUpdate;
     }
 
+    private void OnDestroy() => Destroy(nametagParent.gameObject);
+
+    public void UpdatePlayerPlatform()
+    {
+        if (associatedRig.isLocal)
+            platform = "[PC]";
+        else
+            platform = GetPlayerPlatform();
+
+        thirdPersonNametag.PlatformText.text = platform;
+        if (!associatedRig.isLocal) firstPersonNametag.PlatformText.text = platform;
+
+        Color colour = platform == "[STANDALONE]"
+            ? NametagHandler.Instance.StandaloneColour
+            : NametagHandler.Instance.SteamColour;
+        
+        thirdPersonNametag.PlatformText.color = colour;
+        if (!associatedRig.isLocal) firstPersonNametag.PlatformText.color = colour;
+    }
+
     private void Awake()
     {
         nametagParent = new GameObject("NametagParent").transform;
@@ -72,18 +92,7 @@ public class Nametag : MonoBehaviour
         associatedRig = GetComponent<VRRig>();
 
         if (associatedRig.isLocal)
-        {
             platform = "[PC]";
-        }
-        else
-        {
-            platform = GetPlayerPlatform();
-            RigUtils.OnRigCosmeticsLoad += (rig) =>
-            {
-                if (rig == associatedRig)
-                    platform = GetPlayerPlatform();
-            };
-        }
 
         if (!associatedRig.isLocal)
             firstPersonNametag = SetUpNametagComponents(true);
@@ -109,11 +118,6 @@ public class Nametag : MonoBehaviour
         nametagComponents.NameText = nametagComponents.Nametag.Find("Name").GetComponent<TextMeshProUGUI>();
         nametagComponents.PlatformText = nametagComponents.Nametag.Find("Platform").GetComponent<TextMeshProUGUI>();
         nametagComponents.FPSText = nametagComponents.Nametag.Find("FPS").GetComponent<TextMeshProUGUI>();
-
-        nametagComponents.PlatformText.text = platform;
-        nametagComponents.PlatformText.color = platform == "[STANDALONE]"
-            ? NametagHandler.Instance.StandaloneColour
-            : NametagHandler.Instance.SteamColour;
 
         nametagComponents.NameText.text = associatedRig.OwningNetPlayer != null
             ? associatedRig.OwningNetPlayer.NickName

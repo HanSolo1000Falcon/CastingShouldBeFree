@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using BepInEx;
 using CastingShouldBeFree.Core.Interface.PanelHandlers;
-using CastingShouldBeFree.Core.ModeHandlers;
+using CastingShouldBeFree.Core.Mode_Handlers;
 using CastingShouldBeFree.Patches;
 using CastingShouldBeFree.Utils;
 using TMPro;

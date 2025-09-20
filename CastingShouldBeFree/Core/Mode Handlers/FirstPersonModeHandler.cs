@@ -4,7 +4,7 @@ using CastingShouldBeFree.Utils;
 using GorillaNetworking;
 using UnityEngine;
 
-namespace CastingShouldBeFree.Core.ModeHandlers;
+namespace CastingShouldBeFree.Core.Mode_Handlers;
 
 public class FirstPersonModeHandler : ModeHandlerBase
 {

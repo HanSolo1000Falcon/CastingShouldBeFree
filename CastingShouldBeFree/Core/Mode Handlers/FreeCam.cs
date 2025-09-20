@@ -3,7 +3,7 @@ using CastingShouldBeFree.Core.Interface;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace CastingShouldBeFree.Core.ModeHandlers;
+namespace CastingShouldBeFree.Core.Mode_Handlers;
 
 public class FreeCam : ModeHandlerBase
 {

@@ -1,5 +1,5 @@
 using System.Globalization;
-using CastingShouldBeFree.Core.ModeHandlers;
+using CastingShouldBeFree.Core.Mode_Handlers;
 using CastingShouldBeFree.Nametags;
 using CastingShouldBeFree.Utils;
 using GorillaNetworking;
@@ -69,6 +69,15 @@ public class SettingsHandler : Singleton<SettingsHandler>
                 transform.Find("SettingsGrid/Viewport/Content/Nametags")
                         .GetComponentInChildren<TextMeshProUGUI>().text =
                     $"Nametags\n{(NametagHandler.Instance.NametagsEnabled ? "<color=green>Enabled</color>" : "<color=red>Disabled</color>")}";
+            });
+        
+        transform.Find("SettingsGrid/Viewport/Content/RollLock").GetComponent<Button>().onClick
+            .AddListener(() =>
+            {
+                ModeHandlerBase.RollLock = !ModeHandlerBase.RollLock;
+                transform.Find("SettingsGrid/Viewport/Content/RollLock")
+                        .GetComponentInChildren<TextMeshProUGUI>().text =
+                    $"Roll Lock\n{(ModeHandlerBase.RollLock ? "<color=green>Enabled</color>" : "<color=red>Disabled</color>")}";
             });
 
         Transform thirdPersonSliderPanel = transform.Find("ThirdPersonPanel");

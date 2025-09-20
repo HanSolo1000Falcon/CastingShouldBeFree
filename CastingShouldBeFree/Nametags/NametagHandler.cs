@@ -1,9 +1,8 @@
 using System.Collections.Generic;
 using CastingShouldBeFree.Core.Interface;
-using CastingShouldBeFree.Core.ModeHandlers;
+using CastingShouldBeFree.Core.Mode_Handlers;
 using CastingShouldBeFree.Patches;
 using CastingShouldBeFree.Utils;
-using TMPro;
 using UnityEngine;
 
 namespace CastingShouldBeFree.Nametags;
