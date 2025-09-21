@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using BepInEx;
@@ -15,7 +16,11 @@ public class GUIHandler : Singleton<GUIHandler>
 {
     public GameObject Canvas { get; private set; }
 
-    private bool hasInitEventSystem;
+    public bool HasInitEventSystem;
+
+    public TextMeshProUGUI FOVText;
+    public TextMeshProUGUI NearClipText;
+    public TextMeshProUGUI SmoothingText;
 
     private float initTime;
 
@@ -66,9 +71,10 @@ public class GUIHandler : Singleton<GUIHandler>
         RigUtils.OnRigNameChange += UpdatePlayerName;
         RigUtils.OnMatIndexChange += UpdatePlayerTagState;
         RigUtils.OnRigColourChange += UpdatePlayerColour;
-        
+
         CoreHandler.Instance.OnCastedRigChange += OnCastedRigChange;
-        CoreHandler.Instance.OnCurrentHandlerChange += (handlerName) => currentModeText.text = $"Current Mode: {handlerName}";
+        CoreHandler.Instance.OnCurrentHandlerChange +=
+            (handlerName) => currentModeText.text = $"Current Mode: {handlerName}";
 
         SetUpOtherPanels(mainPanel);
 
@@ -81,7 +87,8 @@ public class GUIHandler : Singleton<GUIHandler>
         {
             GameObject modeButton = Instantiate(modeButtonPrefab, modeContent);
             modeButton.GetComponentInChildren<TextMeshProUGUI>().text = modeHandlerPair.Value.HandlerName;
-            modeButton.GetComponent<Button>().onClick.AddListener(() => CoreHandler.Instance.CurrentHandlerName = modeHandlerPair.Value.HandlerName);
+            modeButton.GetComponent<Button>().onClick.AddListener(() =>
+                CoreHandler.Instance.CurrentHandlerName = modeHandlerPair.Value.HandlerName);
         }
 
         CoreHandler.Instance.CurrentHandlerName = FirstPersonModeHandler.HandlerNameStatic();
@@ -104,41 +111,27 @@ public class GUIHandler : Singleton<GUIHandler>
     {
         Transform fovPanel = mainPanel.transform.Find("FOVPanel");
         Slider fovSlider = fovPanel.GetComponentInChildren<Slider>();
-        TextMeshProUGUI fovText = fovPanel.GetComponentInChildren<TextMeshProUGUI>();
+        FOVText = fovPanel.GetComponentInChildren<TextMeshProUGUI>();
 
-        fovSlider.onValueChanged.AddListener((value) =>
-        {
-            Plugin.Instance.PCCamera.GetComponent<Camera>().fieldOfView = value;
-            fovText.text = $"FOV: {value:N0}";
-        });
+        fovSlider.onValueChanged.AddListener((value) => CoreHandler.Instance.SetFOV((int)value));
 
         Transform nearClipPanel = mainPanel.transform.Find("NearClipPanel");
         Slider nearClipSlider = nearClipPanel.GetComponentInChildren<Slider>();
-        TextMeshProUGUI nearClipText = nearClipPanel.GetComponentInChildren<TextMeshProUGUI>();
+        NearClipText = nearClipPanel.GetComponentInChildren<TextMeshProUGUI>();
 
-        nearClipSlider.onValueChanged.AddListener((value) =>
-        {
-            Plugin.Instance.PCCamera.GetComponent<Camera>().nearClipPlane = value / 100f;
-            nearClipText.text = $"Near Clip: {value.ToString("N0", CultureInfo.InvariantCulture)}";
-        });
+        nearClipSlider.onValueChanged.AddListener((value) => CoreHandler.Instance.SetNearClip((int)value));
 
         Transform smoothingPanel = mainPanel.transform.Find("SmoothingPanel");
         Slider smoothingSlider = smoothingPanel.GetComponentInChildren<Slider>();
-        TextMeshProUGUI smoothingText = smoothingPanel.GetComponentInChildren<TextMeshProUGUI>();
+        SmoothingText = smoothingPanel.GetComponentInChildren<TextMeshProUGUI>();
 
         currentModeText = mainPanel.transform.Find("CurrentMode").GetComponent<TextMeshProUGUI>();
 
         CoreHandler.Instance.MaxSmoothing = (int)smoothingSlider.maxValue + 1;
 
-        smoothingSlider.onValueChanged.AddListener((value) =>
-        {
-            CameraHandler.Instance.SmoothingFactor = (int)value;
-            smoothingText.text = $"Smoothing: {value:N0}";
-        });
+        smoothingSlider.onValueChanged.AddListener((value) => CoreHandler.Instance.SetSmoothing((int)value));
 
-        fovSlider.onValueChanged?.Invoke(fovSlider.value);
-        nearClipSlider.onValueChanged?.Invoke(nearClipSlider.value);
-        smoothingSlider.onValueChanged?.Invoke(smoothingSlider.value);
+        StartCoroutine(DelayedInvoke(fovSlider, nearClipSlider, smoothingSlider));
     }
 
     private void SetUpOtherPanels(GameObject mainPanel)
@@ -194,17 +187,29 @@ public class GUIHandler : Singleton<GUIHandler>
         });
     }
 
-    private void OnEventSystemInit()
+    private IEnumerator DelayedInvoke(Slider fovSlider, Slider nearClipSlider, Slider smoothingSlider)
     {
-        CoreHandler.Instance.CastedRig = VRRig.LocalRig;
+        for (int i = 0; i < 10; i++)
+            yield return new WaitForEndOfFrame();
+        
+        fovSlider.onValueChanged?.Invoke(fovSlider.value);
+        nearClipSlider.onValueChanged?.Invoke(nearClipSlider.value);
+        smoothingSlider.onValueChanged?.Invoke(smoothingSlider.value);
     }
 
     private void OnGUI()
     {
-        if (hasInitEventSystem || Time.time - initTime < 5f)
+        if (HasInitEventSystem || Time.time - initTime < 5f)
             return;
 
         GUI.Label(new Rect(0f, 0f, 500f, 100f), "Press 'C' to Open the Casting GUI");
+    }
+
+    public void InitEventSystem()
+    {
+        HasInitEventSystem = true;
+        CoreHandler.Instance.CastedRig = VRRig.LocalRig;
+        Canvas.SetActive(true);
     }
 
     private void Update()
@@ -214,22 +219,18 @@ public class GUIHandler : Singleton<GUIHandler>
 
         if (UnityInput.Current.GetKeyDown(KeyCode.C))
         {
-            if (!hasInitEventSystem)
-            {
-                hasInitEventSystem = true;
-                OnEventSystemInit();
-                Canvas.SetActive(true);
-            }
+            if (!HasInitEventSystem)
+                InitEventSystem();
             else
-            {
                 mainPanel.SetActive(!mainPanel.activeSelf);
-            }
         }
 
         if (UnityInput.Current.GetKeyDown(KeyCode.P))
         {
             string firstPersonHandlerName = FirstPersonModeHandler.HandlerNameStatic();
-            CoreHandler.Instance.CurrentHandlerName = (CoreHandler.Instance.CurrentHandlerName == firstPersonHandlerName ? ThirdPersonHandler.HandlerNameStatic() : firstPersonHandlerName);
+            CoreHandler.Instance.CurrentHandlerName = (CoreHandler.Instance.CurrentHandlerName == firstPersonHandlerName
+                ? ThirdPersonHandler.HandlerNameStatic()
+                : firstPersonHandlerName);
         }
 
         for (int i = 0; i <= 9; i++)
@@ -331,8 +332,11 @@ public class GUIHandler : Singleton<GUIHandler>
 
     private void OnCastedRigChange(VRRig currentRig, VRRig lastRig)
     {
-        string playerName = currentRig.OwningNetPlayer != null ? currentRig.OwningNetPlayer.NickName : currentRig.playerText1.text;
-        currentPlayerText.text = $"Name: <color=#{ColorUtility.ToHtmlStringRGB(currentRig.playerColor)}>{playerName}</color>";
+        string playerName = currentRig.OwningNetPlayer != null
+            ? currentRig.OwningNetPlayer.NickName
+            : currentRig.playerText1.text;
+        currentPlayerText.text =
+            $"Name: <color=#{ColorUtility.ToHtmlStringRGB(currentRig.playerColor)}>{playerName}</color>";
         isPlayerTaggedText.text =
             $"Is Tagged? {(currentRig.IsTagged() ? "<color=green>Yes!</color>" : "<color=red>No!</color>")}";
     }

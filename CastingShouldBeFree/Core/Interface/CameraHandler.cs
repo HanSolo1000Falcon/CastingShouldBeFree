@@ -1,5 +1,4 @@
 using CastingShouldBeFree.Utils;
-using GorillaExtensions;
 using UnityEngine;
 
 namespace CastingShouldBeFree.Core.Interface;

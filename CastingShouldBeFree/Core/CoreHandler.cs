@@ -44,7 +44,7 @@ public class CoreHandler : Singleton<CoreHandler>
 
                 foreach (string modeHandlerName in ModeHandlers.Keys)
                     ModeHandlers[modeHandlerName].enabled = modeHandlerName == value;
-                
+
                 OnCurrentHandlerChange?.Invoke(value);
             }
         }
@@ -53,19 +53,19 @@ public class CoreHandler : Singleton<CoreHandler>
     #endregion
 
     public int MaxSmoothing;
-    
+
     public Action<string> OnCurrentHandlerChange;
     public Action<VRRig, VRRig> OnCastedRigChange;
-    
+
     public readonly Dictionary<string, ModeHandlerBase> ModeHandlers = new();
 
     private void Start()
     {
         GameObject modeHandlersComponents = new GameObject("Casting Should Be Free Mode Handlers");
-        
+
         Type[] modeHandlerTypes = Assembly.GetExecutingAssembly().GetTypes().Where(type =>
             type.IsClass && !type.IsAbstract && typeof(ModeHandlerBase).IsAssignableFrom(type)).ToArray();
-        
+
         foreach (Type modeHandlerType in modeHandlerTypes)
         {
             Component modeHandlerComponent = modeHandlersComponents.AddComponent(modeHandlerType);
@@ -84,5 +84,25 @@ public class CoreHandler : Singleton<CoreHandler>
 
         gameObject.AddComponent<GUIHandler>();
         gameObject.AddComponent<WorldSpaceHandler>();
+    }
+
+    public void SetFOV(int fov)
+    {
+        Plugin.Instance.PCCamera.GetComponent<Camera>().fieldOfView = fov;
+        WorldSpaceHandler.Instance.RenderTextureCamera.fieldOfView = fov;
+        GUIHandler.Instance.FOVText.text = $"FOV: {fov}";
+    }
+
+    public void SetNearClip(int nearClip)
+    {
+        Plugin.Instance.PCCamera.GetComponent<Camera>().nearClipPlane = nearClip / 100f;
+        WorldSpaceHandler.Instance.RenderTextureCamera.nearClipPlane = nearClip / 100f;
+        GUIHandler.Instance.NearClipText.text = $"Near Clip: {nearClip}";
+    }
+
+    public void SetSmoothing(int smoothing)
+    {
+        CameraHandler.Instance.SmoothingFactor = smoothing;
+        GUIHandler.Instance.SmoothingText.text = $"Smoothing: {smoothing}";
     }
 }
