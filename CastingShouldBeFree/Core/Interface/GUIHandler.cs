@@ -22,6 +22,10 @@ public class GUIHandler : Singleton<GUIHandler>
     public TextMeshProUGUI NearClipText;
     public TextMeshProUGUI SmoothingText;
 
+    public Slider FOVSlider;
+    public Slider NearClipSlider;
+    public Slider SmoothingSlider;
+
     private float initTime;
 
     private GameObject mainPanel;
@@ -109,28 +113,35 @@ public class GUIHandler : Singleton<GUIHandler>
     private void SetUpCameraSettings(GameObject mainPanel)
     {
         Transform fovPanel = mainPanel.transform.Find("FOVPanel");
-        Slider fovSlider = fovPanel.GetComponentInChildren<Slider>();
+        FOVSlider = fovPanel.GetComponentInChildren<Slider>();
         FOVText = fovPanel.GetComponentInChildren<TextMeshProUGUI>();
+        
+        CoreHandler.Instance.MaxFOV = (int)FOVSlider.maxValue;
+        CoreHandler.Instance.MinFOV = (int)FOVSlider.minValue;
 
-        fovSlider.onValueChanged.AddListener((value) => CoreHandler.Instance.SetFOV((int)value));
+        FOVSlider.onValueChanged.AddListener((value) => CoreHandler.Instance.SetFOV((int)value));
 
         Transform nearClipPanel = mainPanel.transform.Find("NearClipPanel");
-        Slider nearClipSlider = nearClipPanel.GetComponentInChildren<Slider>();
+        NearClipSlider = nearClipPanel.GetComponentInChildren<Slider>();
         NearClipText = nearClipPanel.GetComponentInChildren<TextMeshProUGUI>();
 
-        nearClipSlider.onValueChanged.AddListener((value) => CoreHandler.Instance.SetNearClip((int)value));
+        NearClipSlider.onValueChanged.AddListener((value) => CoreHandler.Instance.SetNearClip((int)value));
+        
+        CoreHandler.Instance.MaxNearClip = (int)NearClipSlider.maxValue;
+        CoreHandler.Instance.MinNearClip = (int)NearClipSlider.minValue;
 
         Transform smoothingPanel = mainPanel.transform.Find("SmoothingPanel");
-        Slider smoothingSlider = smoothingPanel.GetComponentInChildren<Slider>();
+        SmoothingSlider = smoothingPanel.GetComponentInChildren<Slider>();
         SmoothingText = smoothingPanel.GetComponentInChildren<TextMeshProUGUI>();
 
         currentModeText = mainPanel.transform.Find("CurrentMode").GetComponent<TextMeshProUGUI>();
 
-        CoreHandler.Instance.MaxSmoothing = (int)smoothingSlider.maxValue + 1;
+        CoreHandler.Instance.MaxSmoothing = (int)SmoothingSlider.maxValue;
+        CoreHandler.Instance.MinSmoothing = (int)SmoothingSlider.minValue;
 
-        smoothingSlider.onValueChanged.AddListener((value) => CoreHandler.Instance.SetSmoothing((int)value));
+        SmoothingSlider.onValueChanged.AddListener((value) => CoreHandler.Instance.SetSmoothing((int)value));
 
-        StartCoroutine(DelayedInvoke(fovSlider, nearClipSlider, smoothingSlider));
+        StartCoroutine(DelayedInvoke());
     }
 
     private void SetUpOtherPanels(GameObject mainPanel)
@@ -186,14 +197,14 @@ public class GUIHandler : Singleton<GUIHandler>
         });
     }
 
-    private IEnumerator DelayedInvoke(Slider fovSlider, Slider nearClipSlider, Slider smoothingSlider)
+    private IEnumerator DelayedInvoke()
     {
         for (int i = 0; i < 10; i++)
             yield return new WaitForEndOfFrame();
         
-        fovSlider.onValueChanged?.Invoke(fovSlider.value);
-        nearClipSlider.onValueChanged?.Invoke(nearClipSlider.value);
-        smoothingSlider.onValueChanged?.Invoke(smoothingSlider.value);
+        FOVSlider.onValueChanged?.Invoke(FOVSlider.value);
+        NearClipSlider.onValueChanged?.Invoke(NearClipSlider.value);
+        SmoothingSlider.onValueChanged?.Invoke(SmoothingSlider.value);
     }
 
     private void OnGUI()

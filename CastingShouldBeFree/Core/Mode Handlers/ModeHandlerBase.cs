@@ -9,5 +9,5 @@ public abstract class ModeHandlerBase : MonoBehaviour
     
     public abstract string HandlerName { get; }
     
-    protected int GetSmoothingFactor() => -(CameraHandler.Instance.SmoothingFactor - CoreHandler.Instance.MaxSmoothing);
+    protected int GetSmoothingFactor() => -(CameraHandler.Instance.SmoothingFactor - (CoreHandler.Instance.MaxSmoothing + 1));
 }

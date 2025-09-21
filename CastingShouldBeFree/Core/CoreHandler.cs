@@ -52,7 +52,14 @@ public class CoreHandler : Singleton<CoreHandler>
 
     #endregion
 
+    public int MaxFOV;
+    public int MinFOV;
+    
+    public int MaxNearClip;
+    public int MinNearClip;
+    
     public int MaxSmoothing;
+    public int MinSmoothing;
 
     public Action<string> OnCurrentHandlerChange;
     public Action<VRRig, VRRig> OnCastedRigChange;
@@ -88,21 +95,38 @@ public class CoreHandler : Singleton<CoreHandler>
 
     public void SetFOV(int fov)
     {
+        fov = Mathf.Clamp(fov, MinFOV, MaxFOV);
         Plugin.Instance.PCCamera.GetComponent<Camera>().fieldOfView = fov;
         WorldSpaceHandler.Instance.RenderTextureCamera.fieldOfView = fov;
         GUIHandler.Instance.FOVText.text = $"FOV: {fov}";
+        WorldSpaceHandler.Instance.FOVText.text = $"FOV: {fov}";
+        
+        if (!Mathf.Approximately(GUIHandler.Instance.FOVSlider.value, fov))
+            GUIHandler.Instance.FOVSlider.value = fov;
     }
 
     public void SetNearClip(int nearClip)
     {
+        nearClip = Mathf.Clamp(nearClip, MinNearClip, MaxNearClip);
+        GUIHandler.Instance.NearClipSlider.value = nearClip;
         Plugin.Instance.PCCamera.GetComponent<Camera>().nearClipPlane = nearClip / 100f;
         WorldSpaceHandler.Instance.RenderTextureCamera.nearClipPlane = nearClip / 100f;
         GUIHandler.Instance.NearClipText.text = $"Near Clip: {nearClip}";
+        WorldSpaceHandler.Instance.NearClipText.text = $"Near Clip: {nearClip}";
+        
+        if (!Mathf.Approximately(GUIHandler.Instance.NearClipSlider.value, nearClip))
+            GUIHandler.Instance.NearClipSlider.value = nearClip;
     }
 
     public void SetSmoothing(int smoothing)
     {
+        smoothing = Mathf.Clamp(smoothing, MinSmoothing, MaxSmoothing);
+        GUIHandler.Instance.SmoothingSlider.value = smoothing;
         CameraHandler.Instance.SmoothingFactor = smoothing;
         GUIHandler.Instance.SmoothingText.text = $"Smoothing: {smoothing}";
+        WorldSpaceHandler.Instance.SmoothingText.text = $"Smoothing: {smoothing}";
+        
+        if (!Mathf.Approximately(GUIHandler.Instance.SmoothingSlider.value, smoothing))
+            GUIHandler.Instance.SmoothingSlider.value = smoothing;
     }
 }
