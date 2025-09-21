@@ -93,8 +93,7 @@ public class GUIHandler : Singleton<GUIHandler>
 
         CoreHandler.Instance.CurrentHandlerName = FirstPersonModeHandler.HandlerNameStatic();
 
-        RenderTexture miniMapRenderTexture =
-            Instantiate(Plugin.Instance.CastingBundle.LoadAsset<RenderTexture>("MiniMapRenderTexture"));
+        RenderTexture miniMapRenderTexture = Instantiate(Plugin.Instance.CastingBundle.LoadAsset<RenderTexture>("MiniMapRenderTexture"));
         Canvas.transform.Find("MiniMap").gameObject.SetActive(true);
         Canvas.transform.Find("MiniMap").GetComponent<RawImage>().texture = miniMapRenderTexture;
 
