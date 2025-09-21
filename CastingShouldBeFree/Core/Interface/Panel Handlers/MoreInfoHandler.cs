@@ -1,7 +1,7 @@
 using CastingShouldBeFree.Utils;
 using TMPro;
 
-namespace CastingShouldBeFree.Core.Interface.PanelHandlers;
+namespace CastingShouldBeFree.Core.Interface.Panel_Handlers;
 
 public class MoreInfoHandler : Singleton<MoreInfoHandler>
 {

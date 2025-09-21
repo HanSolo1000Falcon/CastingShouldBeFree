@@ -63,7 +63,7 @@ public class FirstPersonModeHandler : ModeHandlerBase
 
         if (CameraHandler.Instance.SmoothingFactor > 0)
             targetRotation = Quaternion.Slerp(CameraHandler.Instance.transform.rotation, targetRotation,
-                Time.deltaTime * CameraHandler.Instance.GetRealSmoothingFactor());
+                Time.deltaTime * GetSmoothingFactor());
 
         CameraHandler.Instance.transform.rotation = targetRotation;
         CameraHandler.Instance.transform.position =

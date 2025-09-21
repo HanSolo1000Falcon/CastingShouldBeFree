@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Globalization;
+using System.Linq;
+using CastingShouldBeFree.Patches;
 using CastingShouldBeFree.Utils;
 using TMPro;
 using UnityEngine;
@@ -21,6 +23,8 @@ public class ScoreboardHandler : Singleton<ScoreboardHandler>
     private TextMeshProUGUI timer;
 
     private float timerTime = -10f;
+
+    private VRRig lastTaggedRig;
 
     private void Start()
     {
@@ -58,18 +62,30 @@ public class ScoreboardHandler : Singleton<ScoreboardHandler>
 
     private IEnumerator StartTiming()
     {
+        if (SetColourPatch.SpawnedRigs.Count < 4 && TagManager.Instance.TaggedRigs.Count > 0)
+            lastTaggedRig = TagManager.Instance.TaggedRigs.ElementAt(0);
+        
         while (currentTimerMode == TimerMode.Timing)
         {
             timerTime += Time.deltaTime;
             timer.text = timerTime.ToString("F", CultureInfo.InvariantCulture);
-            
+
             if (TagManager.Instance.UnTaggedRigs.Count < 1)
+            {
+                timer.GetComponentInChildren<Button>().onClick?.Invoke();
                 yield break;
+            }
+
+            if (SetColourPatch.SpawnedRigs.Count < 4 && TagManager.Instance.TaggedRigs.Count > 0)
+            {
+                if (lastTaggedRig != TagManager.Instance.TaggedRigs.ElementAt(0))
+                {
+                    timer.GetComponentInChildren<Button>().onClick?.Invoke();
+                    yield break;
+                }
+            }
             
             yield return new WaitForFixedUpdate();
         }
-
-        if (currentTimerMode == TimerMode.Timing)
-            timer.GetComponentInChildren<Button>().onClick?.Invoke();
     }
 }

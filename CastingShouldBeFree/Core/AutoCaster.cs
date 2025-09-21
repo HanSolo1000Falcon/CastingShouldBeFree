@@ -13,7 +13,13 @@ public class AutoCaster : Singleton<AutoCaster>
     
     private void Update()
     {
-        if (!IsEnabled || Time.time - lastTime < 5f)
+        if (!IsEnabled)
+            return;
+
+        if (CoreHandler.Instance.CastedRig.IsTagged())
+            lastTime = 0f;
+        
+        if (Time.time - lastTime < 5f)
             return;
 
         lastTime = Time.time;

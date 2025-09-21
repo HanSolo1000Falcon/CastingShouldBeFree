@@ -7,7 +7,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace CastingShouldBeFree.Core.Interface.PanelHandlers;
+namespace CastingShouldBeFree.Core.Interface.Panel_Handlers;
 
 public class SettingsHandler : Singleton<SettingsHandler>
 {

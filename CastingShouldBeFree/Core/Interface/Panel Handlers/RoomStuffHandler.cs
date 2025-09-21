@@ -5,7 +5,7 @@ using GorillaNetworking;
 using TMPro;
 using UnityEngine.UI;
 
-namespace CastingShouldBeFree.Core.Interface.PanelHandlers;
+namespace CastingShouldBeFree.Core.Interface.Panel_Handlers;
 
 public class RoomStuffHandler : Singleton<RoomStuffHandler>
 {

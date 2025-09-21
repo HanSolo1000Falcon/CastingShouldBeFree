@@ -66,7 +66,7 @@ public class FreeCam : ModeHandlerBase
 
         if (CameraHandler.Instance.SmoothingFactor > 0)
         {
-            int realSmoothingFactor = CameraHandler.Instance.GetRealSmoothingFactor();
+            int realSmoothingFactor = GetSmoothingFactor();
             realTargetPosition = Vector3.Lerp(CameraHandler.Instance.transform.position, targetPosition, Time.deltaTime * realSmoothingFactor);
             realTargetRotation = Quaternion.Slerp(CameraHandler.Instance.transform.rotation, targetRotation, Time.deltaTime * realSmoothingFactor);
         }

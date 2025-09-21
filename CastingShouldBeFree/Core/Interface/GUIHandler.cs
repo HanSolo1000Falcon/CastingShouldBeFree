@@ -1,10 +1,7 @@
-using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Reflection;
 using BepInEx;
-using CastingShouldBeFree.Core.Interface.PanelHandlers;
+using CastingShouldBeFree.Core.Interface.Panel_Handlers;
 using CastingShouldBeFree.Core.Mode_Handlers;
 using CastingShouldBeFree.Patches;
 using CastingShouldBeFree.Utils;

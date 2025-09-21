@@ -7,8 +7,6 @@ namespace CastingShouldBeFree.Core.Interface;
 public class CameraHandler : Singleton<CameraHandler>
 {
     public int SmoothingFactor;
-
-    public int GetRealSmoothingFactor() => -(SmoothingFactor - CoreHandler.Instance.MaxSmoothing);
     
     private void Start()
     {
@@ -24,7 +22,7 @@ public class CameraHandler : Singleton<CameraHandler>
         foreach (Transform child in obj.transform)
             FixEverything(child.gameObject);
         
-        if (obj.TryGetComponent<Renderer>(out Renderer renderer))
+        if (obj.TryGetComponent(out Renderer renderer))
         {
             foreach (Material material in renderer.materials)
             {
@@ -45,7 +43,7 @@ public class CameraHandler : Singleton<CameraHandler>
         foreach (Transform child in obj.transform)
             ToggleVisibilityInternal(child.gameObject, toggled);
 
-        if (obj.TryGetComponent(out Renderer rend))
-            rend.enabled = toggled;
+        if (obj.TryGetComponent(out Renderer renderer))
+            renderer.enabled = toggled;
     }
 }
