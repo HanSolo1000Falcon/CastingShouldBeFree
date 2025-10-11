@@ -10,7 +10,7 @@ public static class OnRigCachedPatch
     {
         if (SetColourPatch.SpawnedRigs.Contains(vrrig))
             SetColourPatch.SpawnedRigs.Remove(vrrig);
-        
+
         RigUtils.OnRigCached?.Invoke(vrrig);
     }
 }

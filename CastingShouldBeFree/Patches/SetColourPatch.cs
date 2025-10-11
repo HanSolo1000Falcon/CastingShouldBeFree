@@ -9,7 +9,7 @@ namespace CastingShouldBeFree.Patches;
 public static class SetColourPatch
 {
     public static List<VRRig> SpawnedRigs = new();
-    
+
     private static void Postfix(VRRig __instance, Color color)
     {
         if (!SpawnedRigs.Contains(__instance))

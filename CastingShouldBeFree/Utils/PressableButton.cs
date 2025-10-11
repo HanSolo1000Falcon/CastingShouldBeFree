@@ -5,10 +5,9 @@ namespace CastingShouldBeFree.Utils;
 
 public class PressableButton : MonoBehaviour
 {
-    public Action OnPress;
-
-    private const float DebounceTime = 0.2f;
-    private float touchTime;
+    private const float  DebounceTime = 0.2f;
+    public        Action OnPress;
+    private       float  touchTime;
 
     private void Awake() => gameObject.SetLayer(UnityLayer.GorillaInteractable);
 
@@ -21,7 +20,8 @@ public class PressableButton : MonoBehaviour
         {
             touchTime = Time.time;
             OnPress?.Invoke();
-            GorillaTagger.Instance.StartVibration(other.GetComponentInParent<GorillaTriggerColliderHandIndicator>().isLeftHand, 0.2f, 0.2f);
+            GorillaTagger.Instance.StartVibration(
+                    other.GetComponentInParent<GorillaTriggerColliderHandIndicator>().isLeftHand, 0.2f, 0.2f);
         }
     }
 }

@@ -5,15 +5,28 @@ namespace CastingShouldBeFree.Utils;
 
 public class DraggableUI : MonoBehaviour, IPointerDownHandler, IDragHandler
 {
+    private Canvas        canvas;
+    private Vector2       originalLocalPointerPosition;
+    private Vector2       originalPanelLocalPosition;
     private RectTransform rectTransform;
-    private Canvas canvas;
-    private Vector2 originalLocalPointerPosition;
-    private Vector2 originalPanelLocalPosition;
 
     private void Awake()
     {
         rectTransform = GetComponent<RectTransform>();
-        canvas = GetComponentInParent<Canvas>();
+        canvas        = GetComponentInParent<Canvas>();
+    }
+
+    public void OnDrag(PointerEventData eventData)
+    {
+        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                    canvas.transform as RectTransform,
+                    eventData.position,
+                    eventData.pressEventCamera,
+                    out Vector2 localPointerPosition))
+        {
+            Vector3 offsetToOriginal = localPointerPosition - originalLocalPointerPosition;
+            rectTransform.localPosition = (Vector3)originalPanelLocalPosition + offsetToOriginal;
+        }
     }
 
     public void OnPointerDown(PointerEventData eventData)
@@ -21,23 +34,9 @@ public class DraggableUI : MonoBehaviour, IPointerDownHandler, IDragHandler
         originalPanelLocalPosition = rectTransform.localPosition;
 
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            canvas.transform as RectTransform,
-            eventData.position,
-            eventData.pressEventCamera,
-            out originalLocalPointerPosition);
-    }
-
-
-    public void OnDrag(PointerEventData eventData)
-    {
-        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
                 canvas.transform as RectTransform,
                 eventData.position,
                 eventData.pressEventCamera,
-                out Vector2 localPointerPosition))
-        {
-            Vector3 offsetToOriginal = localPointerPosition - originalLocalPointerPosition;
-            rectTransform.localPosition = (Vector3)originalPanelLocalPosition + offsetToOriginal;
-        }
+                out originalLocalPointerPosition);
     }
 }

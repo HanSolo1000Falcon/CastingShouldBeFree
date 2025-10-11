@@ -11,17 +11,20 @@ public class RoomStuffHandler : Singleton<RoomStuffHandler>
 {
     protected override void Awake()
     {
-        TMP_InputField roomNameInput = transform.transform.Find("RoomInputField").GetComponent<TMP_InputField>();
-        Button joinRoomButton = transform.transform.Find("JoinRoom").GetComponent<Button>();
-        TextMeshProUGUI roomNameText = joinRoomButton.GetComponentInChildren<TextMeshProUGUI>();
-        roomNameInput.onValueChanged.AddListener((value) =>
-            roomNameText.text = $"<color=green>Join</color> Room \'{FilterRoomName(value)}\'");
+        TMP_InputField  roomNameInput  = transform.transform.Find("RoomInputField").GetComponent<TMP_InputField>();
+        Button          joinRoomButton = transform.transform.Find("JoinRoom").GetComponent<Button>();
+        TextMeshProUGUI roomNameText   = joinRoomButton.GetComponentInChildren<TextMeshProUGUI>();
+        roomNameInput.onValueChanged.AddListener(value =>
+                                                         roomNameText.text =
+                                                                 $"<color=green>Join</color> Room \'{FilterRoomName(value)}\'");
 
         transform.Find("LeaveCurrent").GetComponent<Button>().onClick
-            .AddListener(() => NetworkSystem.Instance.ReturnToSinglePlayer());
+                 .AddListener(() => NetworkSystem.Instance.ReturnToSinglePlayer());
+
         joinRoomButton.onClick.AddListener(() =>
-            PhotonNetworkController.Instance.AttemptToJoinSpecificRoom(FilterRoomName(roomNameInput.text),
-                JoinType.Solo));
+                                                   PhotonNetworkController.Instance.AttemptToJoinSpecificRoom(
+                                                           FilterRoomName(roomNameInput.text),
+                                                           JoinType.Solo));
     }
 
     private string FilterRoomName(string roomName)
@@ -33,17 +36,15 @@ public class RoomStuffHandler : Singleton<RoomStuffHandler>
 
         char[] acceptedLetters =
         [
-            'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U',
-            'V', 'W', 'X', 'Y', 'Z', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0'
+                'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U',
+                'V', 'W', 'X', 'Y', 'Z', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0',
         ];
 
         List<char> unnaceptableLetters = new(); // will be killed if your room name contains any of these!!!!
 
         foreach (char c in roomName)
-        {
             if (!acceptedLetters.Contains(c) && !unnaceptableLetters.Contains(c))
                 unnaceptableLetters.Add(c);
-        }
 
         foreach (char c in unnaceptableLetters)
             roomName = roomName.Replace(c.ToString(), string.Empty);

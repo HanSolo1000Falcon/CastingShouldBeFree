@@ -16,12 +16,14 @@ public class ClosestTaggedHandler : Singleton<ClosestTaggedHandler>
         if (TagManager.Instance.TaggedRigs.Contains(CoreHandler.Instance.CastedRig))
         {
             closestTaggedText.text = "Casted Player is <color=orange>Tagged!</color>";
+
             return;
         }
 
         if (TagManager.Instance.TaggedRigs.Count < 1)
         {
             closestTaggedText.text = "No <color=orange>Tagged</color> Players!";
+
             return;
         }
 
@@ -32,7 +34,8 @@ public class ClosestTaggedHandler : Singleton<ClosestTaggedHandler>
             if (rig == CoreHandler.Instance.CastedRig)
                 continue;
 
-            float distance = Vector3.Distance(rig.transform.position, CoreHandler.Instance.CastedRig.transform.position);
+            float distance =
+                    Vector3.Distance(rig.transform.position, CoreHandler.Instance.CastedRig.transform.position);
 
             if (distance < closestTaggedDistance)
                 closestTaggedDistance = distance;
@@ -40,6 +43,6 @@ public class ClosestTaggedHandler : Singleton<ClosestTaggedHandler>
 
         string colour = closestTaggedDistance > 5f ? closestTaggedDistance > 10f ? "green" : "orange" : "red";
         closestTaggedText.text =
-            $"<color=orange>Lava</color> Distance: <color={colour}>{closestTaggedDistance.ToString("F1", CultureInfo.InvariantCulture)}m</color>";
+                $"<color=orange>Lava</color> Distance: <color={colour}>{closestTaggedDistance.ToString("F1", CultureInfo.InvariantCulture)}m</color>";
     }
 }

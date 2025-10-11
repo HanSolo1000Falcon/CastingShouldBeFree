@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
 using BepInEx;
 using CastingShouldBeFree.Core.Interface.Panel_Handlers;
 using CastingShouldBeFree.Core.Mode_Handlers;
@@ -14,36 +13,35 @@ namespace CastingShouldBeFree.Core.Interface;
 
 public class GUIHandler : Singleton<GUIHandler>
 {
-    public GameObject Canvas { get; private set; }
-
     public bool HasInitEventSystem;
 
     public TextMeshProUGUI FOVText;
     public TextMeshProUGUI NearClipText;
     public TextMeshProUGUI SmoothingText;
 
-    public Slider FOVSlider;
-    public Slider NearClipSlider;
-    public Slider SmoothingSlider;
+    public           Slider                        FOVSlider;
+    public           Slider                        NearClipSlider;
+    public           Slider                        SmoothingSlider;
+    private readonly Dictionary<VRRig, GameObject> leaderboardEntries = new();
 
-    private float initTime;
+    private readonly Dictionary<VRRig, GameObject> rigButtons = new();
+    private          TextMeshProUGUI               currentModeText;
+
+    private TextMeshProUGUI currentPlayerText;
+
+    private float           initTime;
+    private TextMeshProUGUI isPlayerTaggedText;
+    private Transform       leaderboard;
+    private GameObject      leaderboardEntryPrefab;
 
     private GameObject mainPanel;
 
     private Camera miniMapCamera;
 
-    private Transform playerContent;
-    private Transform leaderboard;
-
-    private TextMeshProUGUI currentPlayerText;
-    private TextMeshProUGUI isPlayerTaggedText;
-    private TextMeshProUGUI currentModeText;
-
     private GameObject playerButtonPrefab;
-    private GameObject leaderboardEntryPrefab;
 
-    private Dictionary<VRRig, GameObject> rigButtons = new();
-    private Dictionary<VRRig, GameObject> leaderboardEntries = new();
+    private Transform  playerContent;
+    public  GameObject Canvas { get; private set; }
 
     private void Start()
     {
@@ -58,7 +56,7 @@ public class GUIHandler : Singleton<GUIHandler>
         leaderboardEntryPrefab = Plugin.Instance.CastingBundle.LoadAsset<GameObject>("LeaderboardEntry");
 
         leaderboard = Canvas.transform.Find("Leaderboard");
-        mainPanel = Canvas.transform.Find("MainPanel").gameObject;
+        mainPanel   = Canvas.transform.Find("MainPanel").gameObject;
 
         playerContent = mainPanel.transform.Find("Players/Viewport/Content");
 
@@ -70,76 +68,129 @@ public class GUIHandler : Singleton<GUIHandler>
         if (SetColourPatch.SpawnedRigs.Contains(VRRig.LocalRig))
             OnRigSpawned(VRRig.LocalRig);
 
-        RigUtils.OnRigSpawned += OnRigSpawned;
-        RigUtils.OnRigCached += OnRigCached;
-        RigUtils.OnRigNameChange += UpdatePlayerName;
-        RigUtils.OnMatIndexChange += UpdatePlayerTagState;
+        RigUtils.OnRigSpawned      += OnRigSpawned;
+        RigUtils.OnRigCached       += OnRigCached;
+        RigUtils.OnRigNameChange   += UpdatePlayerName;
+        RigUtils.OnMatIndexChange  += UpdatePlayerTagState;
         RigUtils.OnRigColourChange += UpdatePlayerColour;
 
         CoreHandler.Instance.OnCastedRigChange += OnCastedRigChange;
         CoreHandler.Instance.OnCurrentHandlerChange +=
-            (handlerName) => currentModeText.text = $"Current Mode: {handlerName}";
+                handlerName => currentModeText.text = $"Current Mode: {handlerName}";
 
         SetUpOtherPanels(mainPanel);
 
         Canvas.SetActive(false);
 
         GameObject modeButtonPrefab = Plugin.Instance.CastingBundle.LoadAsset<GameObject>("CameraModeButton");
-        Transform modeContent = mainPanel.transform.Find("CameraModes/Viewport/Content");
+        Transform  modeContent      = mainPanel.transform.Find("CameraModes/Viewport/Content");
 
-        foreach (var modeHandlerPair in CoreHandler.Instance.ModeHandlers)
+        foreach (KeyValuePair<string, ModeHandlerBase> modeHandlerPair in CoreHandler.Instance.ModeHandlers)
         {
             GameObject modeButton = Instantiate(modeButtonPrefab, modeContent);
             modeButton.GetComponentInChildren<TextMeshProUGUI>().text = modeHandlerPair.Value.HandlerName;
             modeButton.GetComponent<Button>().onClick.AddListener(() =>
-                CoreHandler.Instance.CurrentHandlerName = modeHandlerPair.Value.HandlerName);
+                                                                          CoreHandler.Instance.CurrentHandlerName =
+                                                                                  modeHandlerPair.Value.HandlerName);
         }
 
         CoreHandler.Instance.CurrentHandlerName = FirstPersonModeHandler.HandlerNameStatic();
 
-        RenderTexture miniMapRenderTexture = Instantiate(Plugin.Instance.CastingBundle.LoadAsset<RenderTexture>("MiniMapRenderTexture"));
+        RenderTexture miniMapRenderTexture =
+                Instantiate(Plugin.Instance.CastingBundle.LoadAsset<RenderTexture>("MiniMapRenderTexture"));
+
         Canvas.transform.Find("MiniMap").gameObject.SetActive(true);
         Canvas.transform.Find("MiniMap").GetComponent<RawImage>().texture = miniMapRenderTexture;
 
-        miniMapCamera = new GameObject("hi im a miinimap camera so cool").AddComponent<Camera>();
-        miniMapCamera.fieldOfView = 100;
+        miniMapCamera               = new GameObject("hi im a miinimap camera so cool").AddComponent<Camera>();
+        miniMapCamera.fieldOfView   = 100;
         miniMapCamera.nearClipPlane = 10f;
-        miniMapCamera.orthographic = true;
+        miniMapCamera.orthographic  = true;
         miniMapCamera.targetTexture = miniMapRenderTexture;
 
         initTime = Time.time;
+    }
+
+    private void Update()
+    {
+        if (Time.time - initTime < 5f)
+            return;
+
+        if (UnityInput.Current.GetKeyDown(KeyCode.C))
+        {
+            if (!HasInitEventSystem)
+                InitEventSystem();
+            else
+                mainPanel.SetActive(!mainPanel.activeSelf);
+        }
+
+        if (UnityInput.Current.GetKeyDown(KeyCode.P))
+        {
+            string firstPersonHandlerName = FirstPersonModeHandler.HandlerNameStatic();
+            CoreHandler.Instance.CurrentHandlerName = CoreHandler.Instance.CurrentHandlerName == firstPersonHandlerName
+                                                              ? ThirdPersonHandler.HandlerNameStatic()
+                                                              : firstPersonHandlerName;
+        }
+
+        for (int i = 0; i <= 9; i++)
+        {
+            KeyCode key = KeyCode.Alpha0 + i;
+            if (UnityInput.Current.GetKeyDown(key) && SetColourPatch.SpawnedRigs.Count > i)
+            {
+                CoreHandler.Instance.CastedRig = SetColourPatch.SpawnedRigs[i];
+
+                break;
+            }
+        }
+    }
+
+    private void LateUpdate()
+    {
+        if (CameraHandler.Instance != null)
+        {
+            miniMapCamera.transform.position = CameraHandler.Instance.transform.position + Vector3.up * 17f;
+            miniMapCamera.transform.rotation = Quaternion.LookRotation(Vector3.down, Vector3.up);
+        }
+    }
+
+    private void OnGUI()
+    {
+        if (HasInitEventSystem || Time.time - initTime < 5f)
+            return;
+
+        GUI.Label(new Rect(0f, 0f, 500f, 100f), "Press 'C' to Open the Casting GUI");
     }
 
     private void SetUpCameraSettings(GameObject mainPanel)
     {
         Transform fovPanel = mainPanel.transform.Find("FOVPanel");
         FOVSlider = fovPanel.GetComponentInChildren<Slider>();
-        FOVText = fovPanel.GetComponentInChildren<TextMeshProUGUI>();
-        
+        FOVText   = fovPanel.GetComponentInChildren<TextMeshProUGUI>();
+
         CoreHandler.Instance.MaxFOV = (int)FOVSlider.maxValue;
         CoreHandler.Instance.MinFOV = (int)FOVSlider.minValue;
 
-        FOVSlider.onValueChanged.AddListener((value) => CoreHandler.Instance.SetFOV((int)value));
+        FOVSlider.onValueChanged.AddListener(value => CoreHandler.Instance.SetFOV((int)value));
 
         Transform nearClipPanel = mainPanel.transform.Find("NearClipPanel");
         NearClipSlider = nearClipPanel.GetComponentInChildren<Slider>();
-        NearClipText = nearClipPanel.GetComponentInChildren<TextMeshProUGUI>();
+        NearClipText   = nearClipPanel.GetComponentInChildren<TextMeshProUGUI>();
 
-        NearClipSlider.onValueChanged.AddListener((value) => CoreHandler.Instance.SetNearClip((int)value));
-        
+        NearClipSlider.onValueChanged.AddListener(value => CoreHandler.Instance.SetNearClip((int)value));
+
         CoreHandler.Instance.MaxNearClip = (int)NearClipSlider.maxValue;
         CoreHandler.Instance.MinNearClip = (int)NearClipSlider.minValue;
 
         Transform smoothingPanel = mainPanel.transform.Find("SmoothingPanel");
         SmoothingSlider = smoothingPanel.GetComponentInChildren<Slider>();
-        SmoothingText = smoothingPanel.GetComponentInChildren<TextMeshProUGUI>();
+        SmoothingText   = smoothingPanel.GetComponentInChildren<TextMeshProUGUI>();
 
         currentModeText = mainPanel.transform.Find("CurrentMode").GetComponent<TextMeshProUGUI>();
 
         CoreHandler.Instance.MaxSmoothing = (int)SmoothingSlider.maxValue;
         CoreHandler.Instance.MinSmoothing = (int)SmoothingSlider.minValue;
 
-        SmoothingSlider.onValueChanged.AddListener((value) => CoreHandler.Instance.SetSmoothing((int)value));
+        SmoothingSlider.onValueChanged.AddListener(value => CoreHandler.Instance.SetSmoothing((int)value));
 
         StartCoroutine(DelayedInvoke());
     }
@@ -147,7 +198,7 @@ public class GUIHandler : Singleton<GUIHandler>
     private void SetUpOtherPanels(GameObject mainPanel)
     {
         Transform panelButtonContent = mainPanel.transform.Find("Chin/Panels/Viewport/Content");
-        Transform panels = Canvas.transform.Find("Panels");
+        Transform panels             = Canvas.transform.Find("Panels");
 
         foreach (Transform panel in panels)
         {
@@ -158,29 +209,36 @@ public class GUIHandler : Singleton<GUIHandler>
             {
                 case "SettingsPanel":
                     panel.AddComponent<SettingsHandler>();
+
                     break;
 
                 case "RoomStuffPanel":
                     panel.AddComponent<RoomStuffHandler>();
+
                     break;
             }
         }
 
         foreach (Transform panelButton in panelButtonContent)
-        {
             panelButton.GetComponent<Button>().onClick.AddListener(() =>
-            {
-                GameObject associatedPanel = panels.Find(panelButton.gameObject.name + "Panel").gameObject;
-                associatedPanel.transform.localPosition = Vector3.zero;
-                associatedPanel.SetActive(!associatedPanel.activeSelf);
-            });
-        }
+                                                                   {
+                                                                       GameObject associatedPanel =
+                                                                               panels.Find(
+                                                                                       panelButton.gameObject.name +
+                                                                                       "Panel").gameObject;
+
+                                                                       associatedPanel.transform.localPosition =
+                                                                               Vector3.zero;
+
+                                                                       associatedPanel.SetActive(
+                                                                               !associatedPanel.activeSelf);
+                                                                   });
     }
 
     private void SetUpPlayerInformation(GameObject mainPanel)
     {
         Transform playerInformation = mainPanel.transform.Find("Chin/PlayerInformation");
-        currentPlayerText = playerInformation.Find("PlayerName").GetComponent<TextMeshProUGUI>();
+        currentPlayerText  = playerInformation.Find("PlayerName").GetComponent<TextMeshProUGUI>();
         isPlayerTaggedText = playerInformation.Find("IsTagged").GetComponent<TextMeshProUGUI>();
 
         currentPlayerText.text = "No Player Selected";
@@ -201,66 +259,17 @@ public class GUIHandler : Singleton<GUIHandler>
     {
         for (int i = 0; i < 10; i++)
             yield return new WaitForEndOfFrame();
-        
+
         FOVSlider.onValueChanged?.Invoke(FOVSlider.value);
         NearClipSlider.onValueChanged?.Invoke(NearClipSlider.value);
         SmoothingSlider.onValueChanged?.Invoke(SmoothingSlider.value);
     }
 
-    private void OnGUI()
-    {
-        if (HasInitEventSystem || Time.time - initTime < 5f)
-            return;
-
-        GUI.Label(new Rect(0f, 0f, 500f, 100f), "Press 'C' to Open the Casting GUI");
-    }
-
     public void InitEventSystem()
     {
-        HasInitEventSystem = true;
+        HasInitEventSystem             = true;
         CoreHandler.Instance.CastedRig = VRRig.LocalRig;
         Canvas.SetActive(true);
-    }
-
-    private void Update()
-    {
-        if (Time.time - initTime < 5f)
-            return;
-
-        if (UnityInput.Current.GetKeyDown(KeyCode.C))
-        {
-            if (!HasInitEventSystem)
-                InitEventSystem();
-            else
-                mainPanel.SetActive(!mainPanel.activeSelf);
-        }
-
-        if (UnityInput.Current.GetKeyDown(KeyCode.P))
-        {
-            string firstPersonHandlerName = FirstPersonModeHandler.HandlerNameStatic();
-            CoreHandler.Instance.CurrentHandlerName = (CoreHandler.Instance.CurrentHandlerName == firstPersonHandlerName
-                ? ThirdPersonHandler.HandlerNameStatic()
-                : firstPersonHandlerName);
-        }
-
-        for (int i = 0; i <= 9; i++)
-        {
-            KeyCode key = KeyCode.Alpha0 + i;
-            if (UnityInput.Current.GetKeyDown(key) && SetColourPatch.SpawnedRigs.Count > i)
-            {
-                CoreHandler.Instance.CastedRig = SetColourPatch.SpawnedRigs[i];
-                break;
-            }
-        }
-    }
-
-    private void LateUpdate()
-    {
-        if (CameraHandler.Instance != null)
-        {
-            miniMapCamera.transform.position = CameraHandler.Instance.transform.position + Vector3.up * 17f;
-            miniMapCamera.transform.rotation = Quaternion.LookRotation(Vector3.down, Vector3.up);
-        }
     }
 
     private void OnRigSpawned(VRRig rig)
@@ -268,13 +277,14 @@ public class GUIHandler : Singleton<GUIHandler>
         GameObject button = Instantiate(playerButtonPrefab, playerContent);
         button.GetComponent<Button>().onClick.AddListener(() => CoreHandler.Instance.CastedRig = rig);
         button.GetComponentInChildren<TextMeshProUGUI>().text = rig.OwningNetPlayer?.NickName;
-        rigButtons[rig] = button;
+        rigButtons[rig]                                       = button;
 
         GameObject leaderboardEntry = Instantiate(leaderboardEntryPrefab, leaderboard);
         leaderboardEntry.GetComponentInChildren<TextMeshProUGUI>().text =
-            $"{SetColourPatch.SpawnedRigs.Count - 1}.{rig.OwningNetPlayer?.NickName}";
+                $"{SetColourPatch.SpawnedRigs.Count - 1}.{rig.OwningNetPlayer?.NickName}";
+
         leaderboardEntry.transform.Find("ColourPanel").GetComponent<Image>().color = rig.playerColor;
-        leaderboardEntries[rig] = leaderboardEntry;
+        leaderboardEntries[rig]                                                    = leaderboardEntry;
     }
 
     private void OnRigCached(VRRig rig)
@@ -294,11 +304,9 @@ public class GUIHandler : Singleton<GUIHandler>
             leaderboardEntries.Remove(rig);
         }
 
-        foreach (var kvp in leaderboardEntries)
-        {
+        foreach (KeyValuePair<VRRig, GameObject> kvp in leaderboardEntries)
             kvp.Value.GetComponentInChildren<TextMeshProUGUI>().text =
-                $"{SetColourPatch.SpawnedRigs.IndexOf(kvp.Key)}.{(kvp.Key.OwningNetPlayer != null ? kvp.Key.OwningNetPlayer.NickName : kvp.Key.playerText1.text)}";
-        }
+                    $"{SetColourPatch.SpawnedRigs.IndexOf(kvp.Key)}.{(kvp.Key.OwningNetPlayer != null ? kvp.Key.OwningNetPlayer.NickName : kvp.Key.playerText1.text)}";
     }
 
     private void UpdatePlayerName(VRRig rig, string playerName)
@@ -308,46 +316,48 @@ public class GUIHandler : Singleton<GUIHandler>
 
         if (CoreHandler.Instance.CastedRig == rig)
             currentPlayerText.text =
-                $"Name: <color=#{ColorUtility.ToHtmlStringRGB(rig.playerColor)}>{playerName}</color>";
+                    $"Name: <color=#{ColorUtility.ToHtmlStringRGB(rig.playerColor)}>{playerName}</color>";
 
         if (leaderboardEntries.TryGetValue(rig, out GameObject entry))
             entry.GetComponentInChildren<TextMeshProUGUI>().text =
-                $"{SetColourPatch.SpawnedRigs.IndexOf(rig)}.{playerName}";
+                    $"{SetColourPatch.SpawnedRigs.IndexOf(rig)}.{playerName}";
     }
 
     private void UpdatePlayerTagState(VRRig rig)
     {
         if (leaderboardEntries.TryGetValue(rig, out GameObject button))
             button.transform.Find("ColourPanel").GetComponent<Image>().color =
-                rig.IsTagged() ? new Color(1f, 0.3288f, 0f, 1f) : rig.playerColor;
+                    rig.IsTagged() ? new Color(1f, 0.3288f, 0f, 1f) : rig.playerColor;
 
         if (CoreHandler.Instance.CastedRig == rig)
             isPlayerTaggedText.text =
-                $"Is Tagged? {(rig.IsTagged() ? "<color=green>Yes!</color>" : "<color=red>No!</color>")}";
+                    $"Is Tagged? {(rig.IsTagged() ? "<color=green>Yes!</color>" : "<color=red>No!</color>")}";
     }
 
     private void UpdatePlayerColour(VRRig rig, Color colour)
     {
         if (leaderboardEntries.TryGetValue(rig, out GameObject button))
             button.transform.Find("ColourPanel").GetComponent<Image>().color =
-                rig.IsTagged() ? new Color(1f, 0.3288f, 0f, 1f) : rig.playerColor;
+                    rig.IsTagged() ? new Color(1f, 0.3288f, 0f, 1f) : rig.playerColor;
 
         if (CoreHandler.Instance.CastedRig == rig)
         {
             string playerName = rig.OwningNetPlayer != null ? rig.OwningNetPlayer.NickName : rig.playerText1.text;
             currentPlayerText.text =
-                $"Name: <color=#{ColorUtility.ToHtmlStringRGB(rig.playerColor)}>{playerName}</color>";
+                    $"Name: <color=#{ColorUtility.ToHtmlStringRGB(rig.playerColor)}>{playerName}</color>";
         }
     }
 
     private void OnCastedRigChange(VRRig currentRig, VRRig lastRig)
     {
         string playerName = currentRig.OwningNetPlayer != null
-            ? currentRig.OwningNetPlayer.NickName
-            : currentRig.playerText1.text;
+                                    ? currentRig.OwningNetPlayer.NickName
+                                    : currentRig.playerText1.text;
+
         currentPlayerText.text =
-            $"Name: <color=#{ColorUtility.ToHtmlStringRGB(currentRig.playerColor)}>{playerName}</color>";
+                $"Name: <color=#{ColorUtility.ToHtmlStringRGB(currentRig.playerColor)}>{playerName}</color>";
+
         isPlayerTaggedText.text =
-            $"Is Tagged? {(currentRig.IsTagged() ? "<color=green>Yes!</color>" : "<color=red>No!</color>")}";
+                $"Is Tagged? {(currentRig.IsTagged() ? "<color=green>Yes!</color>" : "<color=red>No!</color>")}";
     }
 }

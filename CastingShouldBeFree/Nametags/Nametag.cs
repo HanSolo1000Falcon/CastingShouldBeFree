@@ -9,40 +9,75 @@ public class Nametag : MonoBehaviour
 {
     private bool _showTpTag = true;
 
+    private VRRig associatedRig;
+
+    private NametagComponents firstPersonNametag;
+
+    private bool hasInit;
+
+    private Transform nametagParent;
+
+    private string            platform = "[STANDALONE]";
+    private NametagComponents thirdPersonNametag;
+
     public bool ShowTpTag
     {
         get => _showTpTag;
+
         set
         {
             if (value != _showTpTag)
             {
                 _showTpTag = value;
-                
+
                 if (hasInit)
                     thirdPersonNametag.Nametag.gameObject.SetActive(value);
             }
         }
     }
 
-    private bool hasInit;
-
-    private Transform nametagParent;
-
-    private VRRig associatedRig;
-
-    private string platform = "[STANDALONE]";
-
-    private struct NametagComponents
+    private void Awake()
     {
-        public Transform Nametag;
+        nametagParent = new GameObject("NametagParent").transform;
+        nametagParent.SetParent(transform);
+        nametagParent.localPosition = new Vector3(0f, 0.5f, 0f);
 
-        public TextMeshProUGUI NameText;
-        public TextMeshProUGUI PlatformText;
-        public TextMeshProUGUI FPSText;
+        associatedRig = GetComponent<VRRig>();
+
+        if (associatedRig.isLocal)
+            platform = "[PC]";
+
+        if (!associatedRig.isLocal)
+            firstPersonNametag = SetUpNametagComponents(true);
+
+        thirdPersonNametag = SetUpNametagComponents(false);
+
+        if (!ShowTpTag)
+            thirdPersonNametag.Nametag.gameObject.SetActive(false);
+
+        hasInit = true;
     }
 
-    private NametagComponents firstPersonNametag;
-    private NametagComponents thirdPersonNametag;
+    private void LateUpdate()
+    {
+        int    fpsActual = associatedRig.isLocal ? (int)(1f / Time.unscaledDeltaTime) : associatedRig.fps;
+        string colour    = fpsActual > 60 ? fpsActual > 72 ? "green" : "orange" : "red";
+        string fps       = $"<color={colour}>{fpsActual} FPS</color>";
+
+        if (ShowTpTag)
+        {
+            thirdPersonNametag.Nametag.LookAt(Plugin.Instance.PCCamera);
+            thirdPersonNametag.Nametag.Rotate(0f, 180f, 0f);
+            thirdPersonNametag.FPSText.text = fps;
+        }
+
+        if (!associatedRig.isLocal)
+        {
+            firstPersonNametag.Nametag.LookAt(GTPlayer.Instance.headCollider.transform);
+            firstPersonNametag.Nametag.Rotate(0f, 180f, 0f);
+            firstPersonNametag.FPSText.text = fps;
+        }
+    }
 
     private void OnEnable()
     {
@@ -76,52 +111,30 @@ public class Nametag : MonoBehaviour
         if (!associatedRig.isLocal) firstPersonNametag.PlatformText.text = platform;
 
         Color colour = platform == "[STANDALONE]"
-            ? NametagHandler.Instance.StandaloneColour
-            : NametagHandler.Instance.SteamColour;
-        
+                               ? NametagHandler.Instance.StandaloneColour
+                               : NametagHandler.Instance.SteamColour;
+
         thirdPersonNametag.PlatformText.color = colour;
         if (!associatedRig.isLocal) firstPersonNametag.PlatformText.color = colour;
-    }
-
-    private void Awake()
-    {
-        nametagParent = new GameObject("NametagParent").transform;
-        nametagParent.SetParent(transform);
-        nametagParent.localPosition = new Vector3(0f, 0.5f, 0f);
-
-        associatedRig = GetComponent<VRRig>();
-
-        if (associatedRig.isLocal)
-            platform = "[PC]";
-
-        if (!associatedRig.isLocal)
-            firstPersonNametag = SetUpNametagComponents(true);
-
-        thirdPersonNametag = SetUpNametagComponents(false);
-        
-        if (!ShowTpTag)
-            thirdPersonNametag.Nametag.gameObject.SetActive(false);
-
-        hasInit = true;
     }
 
     private NametagComponents SetUpNametagComponents(bool firstPerson)
     {
         NametagComponents nametagComponents = new()
         {
-            Nametag = Instantiate(NametagHandler.Instance.NametagPrefab, nametagParent).transform
+                Nametag = Instantiate(NametagHandler.Instance.NametagPrefab, nametagParent).transform,
         };
 
-        nametagComponents.Nametag.gameObject.name = firstPerson ? "FirstPersonNametag" : "ThirdPersonNametag";
+        nametagComponents.Nametag.gameObject.name         = firstPerson ? "FirstPersonNametag" : "ThirdPersonNametag";
         nametagComponents.Nametag.transform.localPosition = Vector3.zero;
 
-        nametagComponents.NameText = nametagComponents.Nametag.Find("Name").GetComponent<TextMeshProUGUI>();
+        nametagComponents.NameText     = nametagComponents.Nametag.Find("Name").GetComponent<TextMeshProUGUI>();
         nametagComponents.PlatformText = nametagComponents.Nametag.Find("Platform").GetComponent<TextMeshProUGUI>();
-        nametagComponents.FPSText = nametagComponents.Nametag.Find("FPS").GetComponent<TextMeshProUGUI>();
+        nametagComponents.FPSText      = nametagComponents.Nametag.Find("FPS").GetComponent<TextMeshProUGUI>();
 
         nametagComponents.NameText.text = associatedRig.OwningNetPlayer != null
-            ? associatedRig.OwningNetPlayer.NickName
-            : associatedRig.playerText1.text;
+                                                  ? associatedRig.OwningNetPlayer.NickName
+                                                  : associatedRig.playerText1.text;
 
         SetLayer(firstPerson, nametagComponents.Nametag);
 
@@ -154,28 +167,18 @@ public class Nametag : MonoBehaviour
         if (concat.Contains("s. first login")) return "[STEAM]";
         if (concat.Contains("first login") || concat.Contains("game-purchase") ||
             associatedRig.OwningNetPlayer.GetPlayerRef().CustomProperties.Count > 1) return "[PC]";
+
         if (platform == "[PC]" || platform == "[STEAM]") return platform;
+
         return "[STANDALONE]";
     }
 
-    private void LateUpdate()
+    private struct NametagComponents
     {
-        int fpsActual = associatedRig.isLocal ? (int)(1f / Time.unscaledDeltaTime) : associatedRig.fps;
-        string colour = fpsActual > 60 ? fpsActual > 72 ? "green" : "orange" : "red";
-        string fps = $"<color={colour}>{fpsActual} FPS</color>";
+        public Transform Nametag;
 
-        if (ShowTpTag)
-        {
-            thirdPersonNametag.Nametag.LookAt(Plugin.Instance.PCCamera);
-            thirdPersonNametag.Nametag.Rotate(0f, 180f, 0f);
-            thirdPersonNametag.FPSText.text = fps;
-        }
-
-        if (!associatedRig.isLocal)
-        {
-            firstPersonNametag.Nametag.LookAt(GTPlayer.Instance.headCollider.transform);
-            firstPersonNametag.Nametag.Rotate(0f, 180f, 0f);
-            firstPersonNametag.FPSText.text = fps;
-        }
+        public TextMeshProUGUI NameText;
+        public TextMeshProUGUI PlatformText;
+        public TextMeshProUGUI FPSText;
     }
 }

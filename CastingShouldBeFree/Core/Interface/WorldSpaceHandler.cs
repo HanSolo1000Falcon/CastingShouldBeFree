@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using CastingShouldBeFree.Core.Mode_Handlers;
 using CastingShouldBeFree.Utils;
 using GorillaLocomotion;
 using TMPro;
@@ -16,9 +18,9 @@ public class WorldSpaceHandler : Singleton<WorldSpaceHandler>
 
     private GameObject canvas;
 
-    private bool wasPressed;
-
     private float initTime;
+
+    private bool wasPressed;
 
     private void Start()
     {
@@ -35,66 +37,6 @@ public class WorldSpaceHandler : Singleton<WorldSpaceHandler>
         initTime = Time.time;
     }
 
-    private void SetUpRenderTexture()
-    {
-        RenderTexture renderTexture = new RenderTexture(1920, 1080, 24, RenderTextureFormat.ARGB32);
-        renderTexture.name = "VR Render Texture";
-        renderTexture.Create();
-        // ^^ doing it like this because the stupid fucking assetbundle wouldnt load my render texture
-        // assetbundles are so cool but for some fucking reason that bitch wouldnt load!!!!!!
-
-        canvas.transform.Find("MainPanel/Image").GetComponent<RawImage>().texture = renderTexture;
-
-        RenderTextureCamera = new GameObject("Render Texture Camera").AddComponent<Camera>();
-        RenderTextureCamera.cullingMask = Plugin.Instance.PCCamera.GetComponent<Camera>().cullingMask;
-
-        RenderTextureCamera.transform.SetParent(Plugin.Instance.PCCamera.parent, false);
-        RenderTextureCamera.transform.localPosition = Vector3.zero;
-        RenderTextureCamera.transform.localRotation = Quaternion.identity;
-
-        RenderTextureCamera.targetTexture = renderTexture;
-    }
-
-    private void SetUpCameraModes()
-    {
-        GameObject buttonPrefab = Plugin.Instance.CastingBundle.LoadAsset<GameObject>("ModeButtonTemplate");
-        Transform modeContent = canvas.transform.Find("MainPanel/Chin/Content");
-
-        foreach (var modeHandlerPair in CoreHandler.Instance.ModeHandlers)
-        {
-            GameObject modeButton = Instantiate(buttonPrefab, modeContent);
-            modeButton.GetComponentInChildren<TextMeshProUGUI>().text = modeHandlerPair.Value.HandlerName;
-            modeButton.transform.Find("Collider").AddComponent<PressableButton>().OnPress += () =>
-                CoreHandler.Instance.CurrentHandlerName = modeHandlerPair.Value.HandlerName;
-        }
-    }
-
-    private void SetUpCameraSettings()
-    {
-        Transform tunablesContent = canvas.transform.Find("MainPanel/Tunables/Content");
-
-        Transform fovPanel = tunablesContent.Find("FOVPanel");
-        FOVText = fovPanel.Find("FOVText").GetComponent<TextMeshProUGUI>();
-        fovPanel.Find("MoreFOV/Collider").AddComponent<PressableButton>().OnPress += () =>
-            CoreHandler.Instance.SetFOV((int)GUIHandler.Instance.FOVSlider.value + 5);
-        fovPanel.Find("LessFOV/Collider").AddComponent<PressableButton>().OnPress += () =>
-            CoreHandler.Instance.SetFOV((int)GUIHandler.Instance.FOVSlider.value - 5);
-
-        Transform nearClipPanel = tunablesContent.Find("NearClipPanel");
-        NearClipText = nearClipPanel.Find("NearClipText").GetComponent<TextMeshProUGUI>();
-        nearClipPanel.Find("MoreNearClip/Collider").AddComponent<PressableButton>().OnPress += () =>
-            CoreHandler.Instance.SetNearClip((int)GUIHandler.Instance.NearClipSlider.value + 1);
-        nearClipPanel.Find("LessNearClip/Collider").AddComponent<PressableButton>().OnPress += () =>
-            CoreHandler.Instance.SetNearClip((int)GUIHandler.Instance.NearClipSlider.value - 1);
-
-        Transform smoothingPanel = tunablesContent.Find("SmoothingPanel");
-        SmoothingText = smoothingPanel.Find("SmoothingText").GetComponent<TextMeshProUGUI>();
-        smoothingPanel.Find("MoreSmoothing/Collider").AddComponent<PressableButton>().OnPress += () =>
-            CoreHandler.Instance.SetSmoothing(CameraHandler.Instance.SmoothingFactor + 1);
-        smoothingPanel.Find("LessSmoothing/Collider").AddComponent<PressableButton>().OnPress += () =>
-            CoreHandler.Instance.SetSmoothing(CameraHandler.Instance.SmoothingFactor - 1);
-    }
-
     private void Update()
     {
         if (Time.time - initTime < 5f)
@@ -108,6 +50,7 @@ public class WorldSpaceHandler : Singleton<WorldSpaceHandler>
 
             canvas.transform.position = GTPlayer.Instance.bodyCollider.transform.position +
                                         GTPlayer.Instance.bodyCollider.transform.forward * 0.5f;
+
             canvas.transform.LookAt(GTPlayer.Instance.headCollider.transform);
             canvas.transform.Rotate(0f, 180f, 0f);
 
@@ -119,5 +62,68 @@ public class WorldSpaceHandler : Singleton<WorldSpaceHandler>
         }
 
         wasPressed = isPressed;
+    }
+
+    private void SetUpRenderTexture()
+    {
+        RenderTexture renderTexture = new(1920, 1080, 24, RenderTextureFormat.ARGB32);
+        renderTexture.name = "VR Render Texture";
+        renderTexture.Create();
+        // ^^ doing it like this because the stupid fucking assetbundle wouldnt load my render texture
+        // assetbundles are so cool but for some fucking reason that bitch wouldnt load!!!!!!
+
+        canvas.transform.Find("MainPanel/Image").GetComponent<RawImage>().texture = renderTexture;
+
+        RenderTextureCamera             = new GameObject("Render Texture Camera").AddComponent<Camera>();
+        RenderTextureCamera.cullingMask = Plugin.Instance.PCCamera.GetComponent<Camera>().cullingMask;
+
+        RenderTextureCamera.transform.SetParent(Plugin.Instance.PCCamera.parent, false);
+        RenderTextureCamera.transform.localPosition = Vector3.zero;
+        RenderTextureCamera.transform.localRotation = Quaternion.identity;
+
+        RenderTextureCamera.targetTexture = renderTexture;
+    }
+
+    private void SetUpCameraModes()
+    {
+        GameObject buttonPrefab = Plugin.Instance.CastingBundle.LoadAsset<GameObject>("ModeButtonTemplate");
+        Transform  modeContent  = canvas.transform.Find("MainPanel/Chin/Content");
+
+        foreach (KeyValuePair<string, ModeHandlerBase> modeHandlerPair in CoreHandler.Instance.ModeHandlers)
+        {
+            GameObject modeButton = Instantiate(buttonPrefab, modeContent);
+            modeButton.GetComponentInChildren<TextMeshProUGUI>().text = modeHandlerPair.Value.HandlerName;
+            modeButton.transform.Find("Collider").AddComponent<PressableButton>().OnPress += () =>
+                        CoreHandler.Instance.CurrentHandlerName = modeHandlerPair.Value.HandlerName;
+        }
+    }
+
+    private void SetUpCameraSettings()
+    {
+        Transform tunablesContent = canvas.transform.Find("MainPanel/Tunables/Content");
+
+        Transform fovPanel = tunablesContent.Find("FOVPanel");
+        FOVText = fovPanel.Find("FOVText").GetComponent<TextMeshProUGUI>();
+        fovPanel.Find("MoreFOV/Collider").AddComponent<PressableButton>().OnPress += () =>
+                    CoreHandler.Instance.SetFOV((int)GUIHandler.Instance.FOVSlider.value + 5);
+
+        fovPanel.Find("LessFOV/Collider").AddComponent<PressableButton>().OnPress += () =>
+                    CoreHandler.Instance.SetFOV((int)GUIHandler.Instance.FOVSlider.value - 5);
+
+        Transform nearClipPanel = tunablesContent.Find("NearClipPanel");
+        NearClipText = nearClipPanel.Find("NearClipText").GetComponent<TextMeshProUGUI>();
+        nearClipPanel.Find("MoreNearClip/Collider").AddComponent<PressableButton>().OnPress += () =>
+                    CoreHandler.Instance.SetNearClip((int)GUIHandler.Instance.NearClipSlider.value + 1);
+
+        nearClipPanel.Find("LessNearClip/Collider").AddComponent<PressableButton>().OnPress += () =>
+                    CoreHandler.Instance.SetNearClip((int)GUIHandler.Instance.NearClipSlider.value - 1);
+
+        Transform smoothingPanel = tunablesContent.Find("SmoothingPanel");
+        SmoothingText = smoothingPanel.Find("SmoothingText").GetComponent<TextMeshProUGUI>();
+        smoothingPanel.Find("MoreSmoothing/Collider").AddComponent<PressableButton>().OnPress += () =>
+                    CoreHandler.Instance.SetSmoothing(CameraHandler.Instance.SmoothingFactor + 1);
+
+        smoothingPanel.Find("LessSmoothing/Collider").AddComponent<PressableButton>().OnPress += () =>
+                    CoreHandler.Instance.SetSmoothing(CameraHandler.Instance.SmoothingFactor - 1);
     }
 }

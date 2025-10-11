@@ -7,25 +7,13 @@ namespace CastingShouldBeFree.Core.Mode_Handlers;
 
 public class FreeCam : ModeHandlerBase
 {
-    public override string HandlerName => "Free Cam";
-
-    private Vector3 targetPosition;
-    private Quaternion targetRotation;
-
-    private float yaw;
     private float pitch;
 
-    private void OnEnable()
-    {
-        targetPosition = CameraHandler.Instance.transform.position;
-        targetRotation = CameraHandler.Instance.transform.rotation;
+    private Vector3    targetPosition;
+    private Quaternion targetRotation;
 
-        Vector3 euler = CameraHandler.Instance.transform.rotation.eulerAngles;
-        yaw = euler.y;
-        pitch = euler.x;
-    }
-
-    private void OnDisable() => Cursor.lockState = CursorLockMode.None;
+    private         float  yaw;
+    public override string HandlerName => "Free Cam";
 
     private void LateUpdate()
     {
@@ -46,12 +34,12 @@ public class FreeCam : ModeHandlerBase
 
         if (Mouse.current.rightButton.isPressed)
         {
-            Vector2 mouseDelta = Mouse.current.delta.ReadValue();
-            float sensitivity = 6f;
+            Vector2 mouseDelta  = Mouse.current.delta.ReadValue();
+            float   sensitivity = 6f;
 
-            yaw += mouseDelta.x * sensitivity * Time.deltaTime;
+            yaw   += mouseDelta.x * sensitivity * Time.deltaTime;
             pitch -= mouseDelta.y * sensitivity * Time.deltaTime;
-            pitch = Mathf.Clamp(pitch, -89f, 89f);
+            pitch =  Mathf.Clamp(pitch, -89f, 89f);
 
             targetRotation = Quaternion.Euler(pitch, yaw, 0f);
 
@@ -61,17 +49,32 @@ public class FreeCam : ModeHandlerBase
         {
             Cursor.lockState = CursorLockMode.None;
         }
-        
+
         Quaternion realTargetRotation = targetRotation;
 
         if (CameraHandler.Instance.SmoothingFactor > 0)
         {
             int realSmoothingFactor = GetSmoothingFactor();
-            realTargetPosition = Vector3.Lerp(CameraHandler.Instance.transform.position, targetPosition, Time.deltaTime * realSmoothingFactor);
-            realTargetRotation = Quaternion.Slerp(CameraHandler.Instance.transform.rotation, targetRotation, Time.deltaTime * realSmoothingFactor);
+            realTargetPosition = Vector3.Lerp(CameraHandler.Instance.transform.position, targetPosition,
+                    Time.deltaTime * realSmoothingFactor);
+
+            realTargetRotation = Quaternion.Slerp(CameraHandler.Instance.transform.rotation, targetRotation,
+                    Time.deltaTime * realSmoothingFactor);
         }
-        
+
         CameraHandler.Instance.transform.position = realTargetPosition;
         CameraHandler.Instance.transform.rotation = realTargetRotation;
     }
+
+    private void OnEnable()
+    {
+        targetPosition = CameraHandler.Instance.transform.position;
+        targetRotation = CameraHandler.Instance.transform.rotation;
+
+        Vector3 euler = CameraHandler.Instance.transform.rotation.eulerAngles;
+        yaw   = euler.y;
+        pitch = euler.x;
+    }
+
+    private void OnDisable() => Cursor.lockState = CursorLockMode.None;
 }
