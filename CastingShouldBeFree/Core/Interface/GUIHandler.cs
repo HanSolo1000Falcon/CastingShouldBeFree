@@ -50,7 +50,6 @@ public class GUIHandler : Singleton<GUIHandler>
         Destroy(canvasPrefab);
         Canvas.name = "Casting Should Be Free Canvas";
 
-        Canvas.transform.Find("Scoreboard").AddComponent<ScoreboardHandler>();
         Canvas.transform.Find("ClosestLava").AddComponent<ClosestTaggedHandler>();
 
         leaderboardEntryPrefab = Plugin.Instance.CastingBundle.LoadAsset<GameObject>("LeaderboardEntry");
@@ -216,6 +215,11 @@ public class GUIHandler : Singleton<GUIHandler>
                     panel.AddComponent<RoomStuffHandler>();
 
                     break;
+
+                case "ScoreboardPanel":
+                    panel.AddComponent<ScoreboardHandler>();
+
+                    break;
             }
         }
 
@@ -249,10 +253,10 @@ public class GUIHandler : Singleton<GUIHandler>
         moreInfo.Find("Exit").GetComponent<Button>().onClick.AddListener(() => moreInfo.gameObject.SetActive(false));
 
         playerInformation.Find("MoreInfo").GetComponent<Button>().onClick.AddListener(() =>
-        {
-            moreInfo.localPosition = Vector3.zero;
-            moreInfo.gameObject.SetActive(!moreInfo.gameObject.activeSelf);
-        });
+            {
+                moreInfo.localPosition = Vector3.zero;
+                moreInfo.gameObject.SetActive(!moreInfo.gameObject.activeSelf);
+            });
     }
 
     private IEnumerator DelayedInvoke()

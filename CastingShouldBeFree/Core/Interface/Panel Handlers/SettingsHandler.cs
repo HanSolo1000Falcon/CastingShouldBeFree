@@ -38,12 +38,12 @@ public class SettingsHandler : Singleton<SettingsHandler>
         transform.Find("SettingsGrid/Viewport/Content/Scoreboard").GetComponent<Button>().onClick
                  .AddListener(() =>
                               {
-                                  ScoreboardHandler.Instance.gameObject.SetActive(
-                                          !ScoreboardHandler.Instance.gameObject.activeSelf);
+                                  ScoreboardHandler.Instance.Scoreboard.SetActive(
+                                          !ScoreboardHandler.Instance.Scoreboard.activeSelf);
 
                                   transform.Find("SettingsGrid/Viewport/Content/Scoreboard")
                                            .GetComponentInChildren<TextMeshProUGUI>().text =
-                                          $"Scoreboard\n{(ScoreboardHandler.Instance.gameObject.activeSelf ? "<color=green>Enabled</color>" : "<color=red>Disabled</color>")}";
+                                          $"Scoreboard\n{(ScoreboardHandler.Instance.Scoreboard.activeSelf ? "<color=green>Enabled</color>" : "<color=red>Disabled</color>")}";
                               });
 
         transform.Find("SettingsGrid/Viewport/Content/MiniMap").GetComponent<Button>().onClick
@@ -95,6 +95,15 @@ public class SettingsHandler : Singleton<SettingsHandler>
                                   transform.Find("SettingsGrid/Viewport/Content/AutoCasting")
                                            .GetComponentInChildren<TextMeshProUGUI>().text =
                                           $"Auto Casting\n{(AutoCaster.Instance.IsEnabled ? "<color=green>Enabled</color>" : "<color=red>Disabled</color>")}";
+                              });
+
+        transform.Find("SettingsGrid/Viewport/Content/ThirdPersonBodyLock").GetComponent<Button>().onClick
+                 .AddListener(() =>
+                              {
+                                  ThirdPersonHandler.BodyLocked = !ThirdPersonHandler.BodyLocked;
+                                  transform.Find("SettingsGrid/Viewport/Content/ThirdPersonBodyLock")
+                                           .GetComponentInChildren<TextMeshProUGUI>().text =
+                                          $"Third Person Body Lock\n{(ThirdPersonHandler.BodyLocked ? "<color=green>Enabled</color>" : "<color=red>Disabled</color>")}";
                               });
 
         Transform thirdPersonSliderPanel = transform.Find("ThirdPersonPanel");

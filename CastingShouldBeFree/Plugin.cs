@@ -26,8 +26,7 @@ public class Plugin : BaseUnityPlugin
 
     public Transform PCCamera { get; private set; }
 
-    public TMP_FontAsset CasterFontNormal { get; private set; }
-    public TMP_FontAsset CasterFontBold   { get; private set; }
+    public TMP_FontAsset CasterFontBold { get; private set; }
 
     public Shader TMP_DistanceField { get; private set; }
 
@@ -58,12 +57,10 @@ public class Plugin : BaseUnityPlugin
         CastingBundle = AssetBundle.LoadFromStream(bundleStream);
         bundleStream?.Close();
 
-        CasterFontNormal = Instantiate(CastingBundle.LoadAsset<TMP_FontAsset>("JetBrainsMonoNL-Regular SDF"));
-        CasterFontBold   = Instantiate(CastingBundle.LoadAsset<TMP_FontAsset>("JetBrainsMono-Bold SDF"));
+        CasterFontBold = Instantiate(CastingBundle.LoadAsset<TMP_FontAsset>("JetBrainsMono-Bold SDF"));
 
-        TMP_DistanceField                = Shader.Find("TextMeshPro/Mobile/Distance Field");
-        CasterFontNormal.material.shader = TMP_DistanceField;
-        CasterFontBold.material.shader   = TMP_DistanceField;
+        TMP_DistanceField              = Shader.Find("TextMeshPro/Mobile/Distance Field");
+        CasterFontBold.material.shader = TMP_DistanceField;
 
         PCCamera = GorillaTagger.Instance.thirdPersonCamera.transform.GetChild(0);
 

@@ -43,7 +43,7 @@ public class CoreHandler : Singleton<CoreHandler>
             }
             else
             {
-                Debug.Log(modeHandlerType.Name + " isn't a mode handler, removing.");
+                Debug.Log(modeHandlerType.Name + " isn't a mode handler, removing...");
                 Destroy(modeHandlerComponent);
             }
         }

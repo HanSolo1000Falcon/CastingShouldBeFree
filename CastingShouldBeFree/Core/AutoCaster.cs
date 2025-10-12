@@ -30,9 +30,6 @@ public class AutoCaster : Singleton<AutoCaster>
 
         foreach (VRRig untaggedRig in TagManager.Instance.UnTaggedRigs)
         {
-            if (untaggedRig == VRRig.LocalRig)
-                continue;
-
             float distance = GetTagDistance(untaggedRig);
 
             if (distance > 20f)
