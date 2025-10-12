@@ -5,7 +5,8 @@ namespace CastingShouldBeFree.Core.Mode_Handlers;
 
 public abstract class ModeHandlerBase : MonoBehaviour
 {
-    public static bool RollLock = true;
+    public static bool RollLock        = true;
+    public static bool SnappySmoothing = false;
 
     public abstract string HandlerName { get; }
 

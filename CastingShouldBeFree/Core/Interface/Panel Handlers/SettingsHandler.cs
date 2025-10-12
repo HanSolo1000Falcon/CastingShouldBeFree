@@ -106,14 +106,23 @@ public class SettingsHandler : Singleton<SettingsHandler>
                                           $"Third Person Body Lock\n{(ThirdPersonHandler.BodyLocked ? "<color=green>Enabled</color>" : "<color=red>Disabled</color>")}";
                               });
 
+        transform.Find("SettingsGrid/Viewport/Content/SnappySmoothing").GetComponent<Button>().onClick
+                 .AddListener(() =>
+                              {
+                                  ModeHandlerBase.SnappySmoothing = !ModeHandlerBase.SnappySmoothing;
+                                  transform.Find("SettingsGrid/Viewport/Content/SnappySmoothing")
+                                           .GetComponentInChildren<TextMeshProUGUI>().text =
+                                          $"Snappy Smoothing\n{(ModeHandlerBase.SnappySmoothing ? "<color=green>Enabled</color>" : "<color=red>Disabled</color>")}";
+                              });
+
         Transform thirdPersonSliderPanel = transform.Find("ThirdPersonPanel");
 
         thirdPersonSliderPanel.GetComponentInChildren<Slider>().onValueChanged.AddListener(value =>
-        {
-            thirdPersonSliderPanel.GetComponentInChildren<TextMeshProUGUI>().text =
-                    $"Third Person Right: {value.ToString("F", CultureInfo.InvariantCulture)}";
+            {
+                thirdPersonSliderPanel.GetComponentInChildren<TextMeshProUGUI>().text =
+                        $"Third Person Right: {value.ToString("F", CultureInfo.InvariantCulture)}";
 
-            ThirdPersonHandler.X = value;
-        });
+                ThirdPersonHandler.X = value;
+            });
     }
 }
