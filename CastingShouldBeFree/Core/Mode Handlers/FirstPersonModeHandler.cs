@@ -32,9 +32,10 @@ public class FirstPersonModeHandler : ModeHandlerBase
             if (SnappySmoothing)
             {
                 Vector3 angularVelocity = targetRotation.GetAngularVelocity(lastRotation);
+                Debug.Log(angularVelocity.magnitude);
                 targetRotation = Quaternion.Slerp(CameraHandler.Instance.transform.rotation, targetRotation,
                         Time.deltaTime * GetSmoothingFactor() *
-                        Mathf.Clamp(angularVelocity.magnitude, 1f, float.MaxValue));
+                        angularVelocity.magnitude);
 
                 lastRotation = CameraHandler.Instance.transform.rotation;
             }
@@ -90,8 +91,8 @@ public class FirstPersonModeHandler : ModeHandlerBase
     private void ToggleFaceCosmetics(VRRig rig, bool toggled)
     {
         CosmeticsController.CosmeticItem[] headItems = rig.cosmeticSet.items.Where(item =>
-                item.itemCategory == CosmeticsController.CosmeticCategory.Face ||
-                item.itemCategory == CosmeticsController.CosmeticCategory.Hat).ToArray();
+                    item.itemCategory == CosmeticsController.CosmeticCategory.Face ||
+                    item.itemCategory == CosmeticsController.CosmeticCategory.Hat).ToArray();
 
         foreach (CosmeticsController.CosmeticItem cosmeticItem in headItems)
         {
