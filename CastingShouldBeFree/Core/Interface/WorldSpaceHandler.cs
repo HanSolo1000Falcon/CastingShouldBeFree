@@ -93,8 +93,7 @@ public class WorldSpaceHandler : Singleton<WorldSpaceHandler>
         {
             GameObject modeButton = Instantiate(buttonPrefab, modeContent);
             modeButton.GetComponentInChildren<TextMeshProUGUI>().text = modeHandlerPair.Value.HandlerName;
-            modeButton.transform.Find("Collider").AddComponent<PressableButton>().OnPress += () =>
-                        CoreHandler.Instance.CurrentHandlerName = modeHandlerPair.Value.HandlerName;
+            modeButton.transform.Find("Collider").AddComponent<PressableButton>().OnPress += () => CoreHandler.Instance.SetCurrentHandler(modeHandlerPair.Value.HandlerName);
         }
     }
 

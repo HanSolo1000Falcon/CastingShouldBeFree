@@ -88,12 +88,10 @@ public class GUIHandler : Singleton<GUIHandler>
         {
             GameObject modeButton = Instantiate(modeButtonPrefab, modeContent);
             modeButton.GetComponentInChildren<TextMeshProUGUI>().text = modeHandlerPair.Value.HandlerName;
-            modeButton.GetComponent<Button>().onClick.AddListener(() =>
-                                                                          CoreHandler.Instance.CurrentHandlerName =
-                                                                                  modeHandlerPair.Value.HandlerName);
+            modeButton.GetComponent<Button>().onClick.AddListener(() => CoreHandler.Instance.SetCurrentHandler(modeHandlerPair.Value.HandlerName));
         }
 
-        CoreHandler.Instance.CurrentHandlerName = FirstPersonModeHandler.HandlerNameStatic();
+        CoreHandler.Instance.CurrentHandlerName = PlayerPrefs.GetString(CoreHandler.CurrentHandlerKey, FirstPersonModeHandler.HandlerNameStatic());
 
         RenderTexture miniMapRenderTexture =
                 Instantiate(Plugin.Instance.CastingBundle.LoadAsset<RenderTexture>("MiniMapRenderTexture"));
@@ -264,9 +262,9 @@ public class GUIHandler : Singleton<GUIHandler>
         for (int i = 0; i < 10; i++)
             yield return new WaitForEndOfFrame();
 
-        FOVSlider.onValueChanged?.Invoke(FOVSlider.value);
-        NearClipSlider.onValueChanged?.Invoke(NearClipSlider.value);
-        SmoothingSlider.onValueChanged?.Invoke(SmoothingSlider.value);
+        FOVSlider.onValueChanged?.Invoke(PlayerPrefs.GetInt(CoreHandler.FovKey, 100));
+        NearClipSlider.onValueChanged?.Invoke(PlayerPrefs.GetInt(CoreHandler.NearClipKey, 100) / 100f);
+        SmoothingSlider.onValueChanged?.Invoke(PlayerPrefs.GetInt(CoreHandler.SmoothingKey, 18));
     }
 
     public void InitEventSystem()

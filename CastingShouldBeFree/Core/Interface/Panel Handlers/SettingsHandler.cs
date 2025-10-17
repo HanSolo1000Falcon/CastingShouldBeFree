@@ -6,6 +6,7 @@ using GorillaNetworking;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using System;
 
 namespace CastingShouldBeFree.Core.Interface.Panel_Handlers;
 
@@ -14,106 +15,21 @@ public class SettingsHandler : Singleton<SettingsHandler>
     protected override void Awake()
     {
         Transform leaderboard = GUIHandler.Instance.Canvas.transform.Find("Leaderboard");
+   
+        SetUpSetting("SettingsGrid/Viewport/Content/AntiAFKKick", "Anti AFK Kick", ref PhotonNetworkController.Instance.disableAFKKick);
+        SetUpSetting("SettingsGrid/Viewport/Content/RollLock", "Roll Lock", ref ModeHandlerBase.RollLock);
+        SetUpSetting("SettingsGrid/Viewport/Content/AutoCasting", "Auto Casting", ref AutoCaster.Instance.IsEnabled);
+        SetUpSetting("SettingsGrid/Viewport/Content/ThirdPersonBodyLock", "Third Person Body Lock", ref ThirdPersonHandler.BodyLocked);
+        SetUpSetting("SettingsGrid/Viewport/Content/SnappySmoothing", "Snappy Smoothing", ref ModeHandlerBase.SnappySmoothing);
 
-        transform.Find("SettingsGrid/Viewport/Content/AntiAFKKick").GetComponent<Button>().onClick
-                 .AddListener(() =>
-                              {
-                                  PhotonNetworkController.Instance.disableAFKKick =
-                                          !PhotonNetworkController.Instance.disableAFKKick;
-
-                                  transform.Find("SettingsGrid/Viewport/Content/AntiAFKKick")
-                                           .GetComponentInChildren<TextMeshProUGUI>().text =
-                                          $"Anti AFK Kick\n{(PhotonNetworkController.Instance.disableAFKKick ? "<color=green>Enabled</color>" : "<color=red>Disabled</color>")}";
-                              });
-
-        transform.Find("SettingsGrid/Viewport/Content/Leaderboard").GetComponent<Button>().onClick
-                 .AddListener(() =>
-                              {
-                                  leaderboard.gameObject.SetActive(!leaderboard.gameObject.activeSelf);
-                                  transform.Find("SettingsGrid/Viewport/Content/Leaderboard")
-                                           .GetComponentInChildren<TextMeshProUGUI>().text =
-                                          $"Leaderboard\n{(leaderboard.gameObject.activeSelf ? "<color=green>Enabled</color>" : "<color=red>Disabled</color>")}";
-                              });
-
-        transform.Find("SettingsGrid/Viewport/Content/Scoreboard").GetComponent<Button>().onClick
-                 .AddListener(() =>
-                              {
-                                  ScoreboardHandler.Instance.Scoreboard.SetActive(
-                                          !ScoreboardHandler.Instance.Scoreboard.activeSelf);
-
-                                  transform.Find("SettingsGrid/Viewport/Content/Scoreboard")
-                                           .GetComponentInChildren<TextMeshProUGUI>().text =
-                                          $"Scoreboard\n{(ScoreboardHandler.Instance.Scoreboard.activeSelf ? "<color=green>Enabled</color>" : "<color=red>Disabled</color>")}";
-                              });
-
-        transform.Find("SettingsGrid/Viewport/Content/MiniMap").GetComponent<Button>().onClick
-                 .AddListener(() =>
-                              {
-                                  GUIHandler.Instance.Canvas.transform.Find("MiniMap").gameObject
-                                            .SetActive(!GUIHandler.Instance.Canvas.transform.Find("MiniMap").gameObject
-                                                                  .activeSelf);
-
-                                  transform.Find("SettingsGrid/Viewport/Content/MiniMap")
-                                           .GetComponentInChildren<TextMeshProUGUI>().text =
-                                          $"Mini Map\n{(GUIHandler.Instance.Canvas.transform.Find("MiniMap").gameObject.activeSelf ? "<color=green>Enabled</color>" : "<color=red>Disabled</color>")}";
-                              });
-
-        transform.Find("SettingsGrid/Viewport/Content/ClosestLava").GetComponent<Button>().onClick
-                 .AddListener(() =>
-                              {
-                                  ClosestTaggedHandler.Instance.gameObject.SetActive(
-                                          !ClosestTaggedHandler.Instance.gameObject
-                                                               .activeSelf);
-
-                                  transform.Find("SettingsGrid/Viewport/Content/ClosestLava")
-                                           .GetComponentInChildren<TextMeshProUGUI>().text =
-                                          $"Closest Lava\n{(ClosestTaggedHandler.Instance.gameObject.activeSelf ? "<color=green>Enabled</color>" : "<color=red>Disabled</color>")}";
-                              });
-
-        transform.Find("SettingsGrid/Viewport/Content/Nametags").GetComponent<Button>().onClick
-                 .AddListener(() =>
-                              {
-                                  NametagHandler.Instance.NametagsEnabled = !NametagHandler.Instance.NametagsEnabled;
-                                  transform.Find("SettingsGrid/Viewport/Content/Nametags")
-                                           .GetComponentInChildren<TextMeshProUGUI>().text =
-                                          $"Nametags\n{(NametagHandler.Instance.NametagsEnabled ? "<color=green>Enabled</color>" : "<color=red>Disabled</color>")}";
-                              });
-
-        transform.Find("SettingsGrid/Viewport/Content/RollLock").GetComponent<Button>().onClick
-                 .AddListener(() =>
-                              {
-                                  ModeHandlerBase.RollLock = !ModeHandlerBase.RollLock;
-                                  transform.Find("SettingsGrid/Viewport/Content/RollLock")
-                                           .GetComponentInChildren<TextMeshProUGUI>().text =
-                                          $"Roll Lock\n{(ModeHandlerBase.RollLock ? "<color=green>Enabled</color>" : "<color=red>Disabled</color>")}";
-                              });
-
-        transform.Find("SettingsGrid/Viewport/Content/AutoCasting").GetComponent<Button>().onClick
-                 .AddListener(() =>
-                              {
-                                  AutoCaster.Instance.IsEnabled = !AutoCaster.Instance.IsEnabled;
-                                  transform.Find("SettingsGrid/Viewport/Content/AutoCasting")
-                                           .GetComponentInChildren<TextMeshProUGUI>().text =
-                                          $"Auto Casting\n{(AutoCaster.Instance.IsEnabled ? "<color=green>Enabled</color>" : "<color=red>Disabled</color>")}";
-                              });
-
-        transform.Find("SettingsGrid/Viewport/Content/ThirdPersonBodyLock").GetComponent<Button>().onClick
-                 .AddListener(() =>
-                              {
-                                  ThirdPersonHandler.BodyLocked = !ThirdPersonHandler.BodyLocked;
-                                  transform.Find("SettingsGrid/Viewport/Content/ThirdPersonBodyLock")
-                                           .GetComponentInChildren<TextMeshProUGUI>().text =
-                                          $"Third Person Body Lock\n{(ThirdPersonHandler.BodyLocked ? "<color=green>Enabled</color>" : "<color=red>Disabled</color>")}";
-                              });
-
-        transform.Find("SettingsGrid/Viewport/Content/SnappySmoothing").GetComponent<Button>().onClick
-                 .AddListener(() =>
-                              {
-                                  ModeHandlerBase.SnappySmoothing = !ModeHandlerBase.SnappySmoothing;
-                                  transform.Find("SettingsGrid/Viewport/Content/SnappySmoothing")
-                                           .GetComponentInChildren<TextMeshProUGUI>().text =
-                                          $"Snappy Smoothing\n{(ModeHandlerBase.SnappySmoothing ? "<color=green>Enabled</color>" : "<color=red>Disabled</color>")}";
-                              });
+        SetUpSetting("SettingsGrid/Viewport/Content/Leaderboard", "Leaderboard", leaderboard.gameObject);
+        SetUpSetting("SettingsGrid/Viewport/Content/Scoreboard", "Scoreboard", GUIHandler.Instance.Canvas.transform.Find("Scoreboard").gameObject);
+        SetUpSetting("SettingsGrid/Viewport/Content/MiniMap", "Mini Map", GUIHandler.Instance.Canvas.transform.Find("MiniMap").gameObject);
+        SetUpSetting("SettingsGrid/Viewport/Content/ClosestLava", "Closest Lava", ClosestTaggedHandler.Instance.gameObject);
+        
+        SetUpSetting("SettingsGrid/Viewport/Content/Nametags", "Nametags",
+                () => NametagHandler.Instance.NametagsEnabled,
+                value => NametagHandler.Instance.NametagsEnabled = value);
 
         Transform thirdPersonSliderPanel = transform.Find("ThirdPersonPanel");
 
@@ -124,5 +40,68 @@ public class SettingsHandler : Singleton<SettingsHandler>
 
                 ThirdPersonHandler.X = value;
             });
+    }
+
+    // A bunch of fucking overloads and shit
+    private void SetUpSetting(string settingPath, string settingName, ref bool setting)
+    {
+        bool localSetting = setting;
+
+        void ChangeSetting()
+        {
+            localSetting = !localSetting;
+            transform.Find(settingPath).GetComponentInChildren<TextMeshProUGUI>().text =
+                    $"{settingName}\n{(localSetting ? "<color=green>Enabled</color>" : "<color=red>Disabled</color>")}";
+            PlayerPrefs.SetInt(settingName, localSetting ? 1 : 0);
+        }
+
+        transform.Find(settingPath).GetComponent<Button>().onClick.AddListener(ChangeSetting);
+
+        if (PlayerPrefs.GetInt(settingName, 0) == 1 != localSetting)
+            transform.Find(settingPath).GetComponent<Button>().onClick?.Invoke();
+
+        setting = localSetting;
+    }
+
+    private void SetUpSetting(string settingPath, string settingName, GameObject target)
+    {
+        bool localSetting = target.activeSelf;
+
+        void ChangeSetting()
+        {
+            localSetting = !localSetting;
+            target.SetActive(localSetting);
+            transform.Find(settingPath).GetComponentInChildren<TextMeshProUGUI>().text =
+                    $"{settingName}\n{(localSetting ? "<color=green>Enabled</color>" : "<color=red>Disabled</color>")}";
+            PlayerPrefs.SetInt(settingName, localSetting ? 1 : 0);
+        }
+
+        transform.Find(settingPath).GetComponent<Button>().onClick.AddListener(ChangeSetting);
+
+        if (PlayerPrefs.GetInt(settingName, 0) == 1 != localSetting)
+            transform.Find(settingPath).GetComponent<Button>().onClick?.Invoke();
+
+        target.SetActive(localSetting);
+    }
+    
+    private void SetUpSetting(string settingPath, string settingName, Func<bool> getter, Action<bool> setter)
+    {
+        bool localSetting = getter();
+
+        void ChangeSetting()
+        {
+            localSetting = !localSetting;
+            setter(localSetting);
+            transform.Find(settingPath).GetComponentInChildren<TextMeshProUGUI>().text =
+                    $"{settingName}\n{(localSetting ? "<color=green>Enabled</color>" : "<color=red>Disabled</color>")}";
+            PlayerPrefs.SetInt(settingName, localSetting ? 1 : 0);
+        }
+
+        transform.Find(settingPath).GetComponent<Button>().onClick.AddListener(ChangeSetting);
+
+        if (PlayerPrefs.GetInt(settingName, 0) == 1 != localSetting)
+            transform.Find(settingPath).GetComponent<Button>().onClick?.Invoke();
+
+        setter(localSetting);
     }
 }
