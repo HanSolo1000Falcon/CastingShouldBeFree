@@ -13,8 +13,8 @@ namespace CastingShouldBeFree.Core.Interface.Panel_Handlers;
 
 public class SettingsHandler : Singleton<SettingsHandler>
 {
-        private const string ThirdPersonXKey = "ThirdPersonX";
-        
+    private const string ThirdPersonXKey = "ThirdPersonX";
+
     protected override void Awake()
     {
         Transform leaderboard = GUIHandler.Instance.Canvas.transform.Find("Leaderboard");
@@ -73,10 +73,12 @@ public class SettingsHandler : Singleton<SettingsHandler>
             ThirdPersonHandler.X = value;
             PlayerPrefs.SetFloat(ThirdPersonXKey, value);
         });
-        
-        thirdPersonSliderPanel.GetComponentInChildren<Slider>().onValueChanged?.Invoke(PlayerPrefs.GetFloat(ThirdPersonXKey, 0f));
+
+        thirdPersonSliderPanel.GetComponentInChildren<Slider>().onValueChanged
+                             ?.Invoke(PlayerPrefs.GetFloat(ThirdPersonXKey, 0f));
+
         thirdPersonSliderPanel.GetComponentInChildren<Slider>().value = PlayerPrefs.GetFloat(ThirdPersonXKey, 0f);
-        
+
         gameObject.SetActive(false);
     }
 
@@ -89,13 +91,16 @@ public class SettingsHandler : Singleton<SettingsHandler>
                     $"{settingName}\n{(localSetting ? "<color=green>Enabled</color>" : "<color=red>Disabled</color>")}";
 
             PlayerPrefs.SetInt(settingName, localSetting ? 1 : 0);
+            PlayerPrefs.Save();
         }
 
         Button button = transform.Find(settingPath).GetComponent<Button>();
         button.onClick.AddListener(setSetting);
         button.onClick.AddListener(ChangeSetting);
 
-        if (PlayerPrefs.GetInt(settingName, 0) == 1 != getSetting())
-            transform.Find(settingPath).GetComponent<Button>().onClick?.Invoke();
+        if (PlayerPrefs.GetInt(settingName, 0) == 1 == getSetting())
+            setSetting?.Invoke();
+
+        transform.Find(settingPath).GetComponent<Button>().onClick?.Invoke();
     }
 }

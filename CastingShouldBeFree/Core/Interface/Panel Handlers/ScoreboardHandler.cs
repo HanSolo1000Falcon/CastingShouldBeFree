@@ -37,7 +37,7 @@ public class ScoreboardHandler : Singleton<ScoreboardHandler>
         TextMeshProUGUI timerText    = Scoreboard.transform.Find("Timer").GetComponent<TextMeshProUGUI>();
         TextMeshProUGUI lastTimeText = Scoreboard.transform.Find("Timer/LastTime").GetComponent<TextMeshProUGUI>();
         Plugin.Instance.gameObject.AddComponent<TimerHandler>().Initialize(timerText, lastTimeText);
-        
+
         gameObject.SetActive(false);
     }
 

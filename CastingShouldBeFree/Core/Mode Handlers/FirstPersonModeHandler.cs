@@ -90,23 +90,30 @@ public class FirstPersonModeHandler : ModeHandlerBase
 
     private void ToggleFaceCosmetics(VRRig rig, bool toggled)
     {
-        CosmeticsController.CosmeticItem[] headItems = rig.cosmeticSet.items.Where(item =>
-                    item.itemCategory == CosmeticsController.CosmeticCategory.Face ||
-                    item.itemCategory == CosmeticsController.CosmeticCategory.Hat).ToArray();
-
-        foreach (CosmeticsController.CosmeticItem cosmeticItem in headItems)
+        try
         {
-            CosmeticItemInstance cosmeticObject = rig.cosmeticsObjectRegistry.Cosmetic(cosmeticItem.displayName);
+            CosmeticsController.CosmeticItem[] headItems = rig.cosmeticSet.items.Where(item =>
+                        item.itemCategory == CosmeticsController.CosmeticCategory.Face ||
+                        item.itemCategory == CosmeticsController.CosmeticCategory.Hat).ToArray();
 
-            CosmeticsController.CosmeticSlots slot =
-                    cosmeticItem.itemCategory == CosmeticsController.CosmeticCategory.Face
-                            ? CosmeticsController.CosmeticSlots.Face
-                            : CosmeticsController.CosmeticSlots.Hat;
+            foreach (CosmeticsController.CosmeticItem cosmeticItem in headItems)
+            {
+                CosmeticItemInstance cosmeticObject = rig.cosmeticsObjectRegistry.Cosmetic(cosmeticItem.displayName);
 
-            if (toggled)
-                cosmeticObject.EnableItem(slot, rig);
-            else
-                cosmeticObject.DisableItem(slot);
+                CosmeticsController.CosmeticSlots slot =
+                        cosmeticItem.itemCategory == CosmeticsController.CosmeticCategory.Face
+                                ? CosmeticsController.CosmeticSlots.Face
+                                : CosmeticsController.CosmeticSlots.Hat;
+
+                if (toggled)
+                    cosmeticObject.EnableItem(slot, rig);
+                else
+                    cosmeticObject.DisableItem(slot);
+            }
+        }
+        catch
+        {
+            /*ignored type shit*/
         }
     }
 }

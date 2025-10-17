@@ -62,12 +62,14 @@ public class CoreHandler : Singleton<CoreHandler>
     {
         CurrentHandlerName = handlerName;
         PlayerPrefs.SetString(CurrentHandlerKey, handlerName);
+        PlayerPrefs.Save();
     }
 
     public void SetFOV(int fov)
     {
         fov = Mathf.Clamp(fov, MinFOV, MaxFOV);
         PlayerPrefs.SetInt(FovKey, fov);
+        PlayerPrefs.Save();
         Plugin.Instance.PCCamera.GetComponent<Camera>().fieldOfView = fov;
         WorldSpaceHandler.Instance.RenderTextureCamera.fieldOfView  = fov;
         GUIHandler.Instance.FOVText.text                            = $"FOV: {fov}";
@@ -81,6 +83,7 @@ public class CoreHandler : Singleton<CoreHandler>
     {
         nearClip = Mathf.Clamp(nearClip, MinNearClip, MaxNearClip);
         PlayerPrefs.SetInt(NearClipKey, nearClip);
+        PlayerPrefs.Save();
         GUIHandler.Instance.NearClipSlider.value                      = nearClip;
         Plugin.Instance.PCCamera.GetComponent<Camera>().nearClipPlane = nearClip / 100f;
         WorldSpaceHandler.Instance.RenderTextureCamera.nearClipPlane  = nearClip / 100f;
@@ -95,6 +98,7 @@ public class CoreHandler : Singleton<CoreHandler>
     {
         smoothing = Mathf.Clamp(smoothing, MinSmoothing, MaxSmoothing);
         PlayerPrefs.SetInt(SmoothingKey, smoothing);
+        PlayerPrefs.Save();
         GUIHandler.Instance.SmoothingSlider.value     = smoothing;
         CameraHandler.Instance.SmoothingFactor        = smoothing;
         GUIHandler.Instance.SmoothingText.text        = $"Smoothing: {smoothing}";

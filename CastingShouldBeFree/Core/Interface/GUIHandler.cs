@@ -98,7 +98,6 @@ public class GUIHandler : Singleton<GUIHandler>
         RenderTexture miniMapRenderTexture =
                 Instantiate(Plugin.Instance.CastingBundle.LoadAsset<RenderTexture>("MiniMapRenderTexture"));
 
-        Canvas.transform.Find("MiniMap").gameObject.SetActive(true);
         Canvas.transform.Find("MiniMap").GetComponent<RawImage>().texture = miniMapRenderTexture;
 
         miniMapCamera               = new GameObject("hi im a miinimap camera so cool").AddComponent<Camera>();
@@ -254,10 +253,10 @@ public class GUIHandler : Singleton<GUIHandler>
         moreInfo.Find("Exit").GetComponent<Button>().onClick.AddListener(() => moreInfo.gameObject.SetActive(false));
 
         playerInformation.Find("MoreInfo").GetComponent<Button>().onClick.AddListener(() =>
-        {
-            moreInfo.localPosition = Vector3.zero;
-            moreInfo.gameObject.SetActive(!moreInfo.gameObject.activeSelf);
-        });
+            {
+                moreInfo.localPosition = Vector3.zero;
+                moreInfo.gameObject.SetActive(!moreInfo.gameObject.activeSelf);
+            });
     }
 
     private IEnumerator DelayedInvoke()

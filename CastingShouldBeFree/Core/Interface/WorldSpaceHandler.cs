@@ -105,25 +105,25 @@ public class WorldSpaceHandler : Singleton<WorldSpaceHandler>
         Transform fovPanel = tunablesContent.Find("FOVPanel");
         FOVText = fovPanel.Find("FOVText").GetComponent<TextMeshProUGUI>();
         fovPanel.Find("MoreFOV/Collider").AddComponent<PressableButton>().OnPress += () =>
-                CoreHandler.Instance.SetFOV((int)GUIHandler.Instance.FOVSlider.value + 5);
+                    CoreHandler.Instance.SetFOV((int)GUIHandler.Instance.FOVSlider.value + 5);
 
         fovPanel.Find("LessFOV/Collider").AddComponent<PressableButton>().OnPress += () =>
-                CoreHandler.Instance.SetFOV((int)GUIHandler.Instance.FOVSlider.value - 5);
+                    CoreHandler.Instance.SetFOV((int)GUIHandler.Instance.FOVSlider.value - 5);
 
         Transform nearClipPanel = tunablesContent.Find("NearClipPanel");
         NearClipText = nearClipPanel.Find("NearClipText").GetComponent<TextMeshProUGUI>();
         nearClipPanel.Find("MoreNearClip/Collider").AddComponent<PressableButton>().OnPress += () =>
-                CoreHandler.Instance.SetNearClip((int)GUIHandler.Instance.NearClipSlider.value + 1);
+                    CoreHandler.Instance.SetNearClip((int)GUIHandler.Instance.NearClipSlider.value + 1);
 
         nearClipPanel.Find("LessNearClip/Collider").AddComponent<PressableButton>().OnPress += () =>
-                CoreHandler.Instance.SetNearClip((int)GUIHandler.Instance.NearClipSlider.value - 1);
+                    CoreHandler.Instance.SetNearClip((int)GUIHandler.Instance.NearClipSlider.value - 1);
 
         Transform smoothingPanel = tunablesContent.Find("SmoothingPanel");
         SmoothingText = smoothingPanel.Find("SmoothingText").GetComponent<TextMeshProUGUI>();
         smoothingPanel.Find("MoreSmoothing/Collider").AddComponent<PressableButton>().OnPress += () =>
-                CoreHandler.Instance.SetSmoothing(CameraHandler.Instance.SmoothingFactor + 1);
+                    CoreHandler.Instance.SetSmoothing(CameraHandler.Instance.SmoothingFactor + 1);
 
         smoothingPanel.Find("LessSmoothing/Collider").AddComponent<PressableButton>().OnPress += () =>
-                CoreHandler.Instance.SetSmoothing(CameraHandler.Instance.SmoothingFactor - 1);
+                    CoreHandler.Instance.SetSmoothing(CameraHandler.Instance.SmoothingFactor - 1);
     }
 }
