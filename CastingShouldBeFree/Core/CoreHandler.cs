@@ -12,11 +12,11 @@ namespace CastingShouldBeFree.Core;
 public class CoreHandler : Singleton<CoreHandler>
 {
     public const string CurrentHandlerKey = "CurrentHandlerName";
-    
-    public const string FovKey = "FOV";
-    public const string NearClipKey = "NearClip";
+
+    public const string FovKey       = "FOV";
+    public const string NearClipKey  = "NearClip";
     public const string SmoothingKey = "Smoothing";
-    
+
     public int MaxFOV;
     public int MinFOV;
 
@@ -63,10 +63,10 @@ public class CoreHandler : Singleton<CoreHandler>
         CurrentHandlerName = handlerName;
         PlayerPrefs.SetString(CurrentHandlerKey, handlerName);
     }
-    
+
     public void SetFOV(int fov)
     {
-        fov                                                         = Mathf.Clamp(fov, MinFOV, MaxFOV);
+        fov = Mathf.Clamp(fov, MinFOV, MaxFOV);
         PlayerPrefs.SetInt(FovKey, fov);
         Plugin.Instance.PCCamera.GetComponent<Camera>().fieldOfView = fov;
         WorldSpaceHandler.Instance.RenderTextureCamera.fieldOfView  = fov;
@@ -79,7 +79,7 @@ public class CoreHandler : Singleton<CoreHandler>
 
     public void SetNearClip(int nearClip)
     {
-        nearClip                                                      = Mathf.Clamp(nearClip, MinNearClip, MaxNearClip);
+        nearClip = Mathf.Clamp(nearClip, MinNearClip, MaxNearClip);
         PlayerPrefs.SetInt(NearClipKey, nearClip);
         GUIHandler.Instance.NearClipSlider.value                      = nearClip;
         Plugin.Instance.PCCamera.GetComponent<Camera>().nearClipPlane = nearClip / 100f;
@@ -93,7 +93,7 @@ public class CoreHandler : Singleton<CoreHandler>
 
     public void SetSmoothing(int smoothing)
     {
-        smoothing                                     = Mathf.Clamp(smoothing, MinSmoothing, MaxSmoothing);
+        smoothing = Mathf.Clamp(smoothing, MinSmoothing, MaxSmoothing);
         PlayerPrefs.SetInt(SmoothingKey, smoothing);
         GUIHandler.Instance.SmoothingSlider.value     = smoothing;
         CameraHandler.Instance.SmoothingFactor        = smoothing;

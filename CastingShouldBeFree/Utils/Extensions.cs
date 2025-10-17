@@ -19,13 +19,14 @@ public static class Extensions
 
         if (angleInDegrees > 180f)
             angleInDegrees -= 360f;
-        
+
         if (angleInDegrees < 0.01f)
             return Vector3.one;
 
         float angularSpeed = angleInDegrees * Mathf.Deg2Rad / Mathf.Max(Time.deltaTime, 0.0001f);
         float maxPossible  = Mathf.PI                       / Time.deltaTime;
         float mappedSpeed  = Mathf.InverseLerp(0, maxPossible, angularSpeed) * 10f + 1f;
+
         return rotationAxis * mappedSpeed;
     }
 }

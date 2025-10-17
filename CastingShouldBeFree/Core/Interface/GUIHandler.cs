@@ -88,10 +88,12 @@ public class GUIHandler : Singleton<GUIHandler>
         {
             GameObject modeButton = Instantiate(modeButtonPrefab, modeContent);
             modeButton.GetComponentInChildren<TextMeshProUGUI>().text = modeHandlerPair.Value.HandlerName;
-            modeButton.GetComponent<Button>().onClick.AddListener(() => CoreHandler.Instance.SetCurrentHandler(modeHandlerPair.Value.HandlerName));
+            modeButton.GetComponent<Button>().onClick
+                      .AddListener(() => CoreHandler.Instance.SetCurrentHandler(modeHandlerPair.Value.HandlerName));
         }
 
-        CoreHandler.Instance.CurrentHandlerName = PlayerPrefs.GetString(CoreHandler.CurrentHandlerKey, FirstPersonModeHandler.HandlerNameStatic());
+        CoreHandler.Instance.CurrentHandlerName = PlayerPrefs.GetString(CoreHandler.CurrentHandlerKey,
+                FirstPersonModeHandler.HandlerNameStatic());
 
         RenderTexture miniMapRenderTexture =
                 Instantiate(Plugin.Instance.CastingBundle.LoadAsset<RenderTexture>("MiniMapRenderTexture"));
@@ -251,10 +253,10 @@ public class GUIHandler : Singleton<GUIHandler>
         moreInfo.Find("Exit").GetComponent<Button>().onClick.AddListener(() => moreInfo.gameObject.SetActive(false));
 
         playerInformation.Find("MoreInfo").GetComponent<Button>().onClick.AddListener(() =>
-            {
-                moreInfo.localPosition = Vector3.zero;
-                moreInfo.gameObject.SetActive(!moreInfo.gameObject.activeSelf);
-            });
+        {
+            moreInfo.localPosition = Vector3.zero;
+            moreInfo.gameObject.SetActive(!moreInfo.gameObject.activeSelf);
+        });
     }
 
     private IEnumerator DelayedInvoke()
