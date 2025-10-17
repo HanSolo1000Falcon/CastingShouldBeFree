@@ -201,6 +201,7 @@ public class GUIHandler : Singleton<GUIHandler>
 
         foreach (Transform panel in panels)
         {
+            panel.gameObject.SetActive(true);
             panel.AddComponent<DraggableUI>();
             panel.Find("Exit").GetComponent<Button>().onClick.AddListener(() => panel.gameObject.SetActive(false));
 

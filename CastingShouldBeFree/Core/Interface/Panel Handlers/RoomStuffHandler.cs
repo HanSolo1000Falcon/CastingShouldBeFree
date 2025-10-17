@@ -25,6 +25,8 @@ public class RoomStuffHandler : Singleton<RoomStuffHandler>
                                                    PhotonNetworkController.Instance.AttemptToJoinSpecificRoom(
                                                            FilterRoomName(roomNameInput.text),
                                                            JoinType.Solo));
+        
+        gameObject.SetActive(false);
     }
 
     private string FilterRoomName(string roomName)

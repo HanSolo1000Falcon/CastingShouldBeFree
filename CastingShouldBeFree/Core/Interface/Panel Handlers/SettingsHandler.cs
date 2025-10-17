@@ -76,6 +76,8 @@ public class SettingsHandler : Singleton<SettingsHandler>
         
         thirdPersonSliderPanel.GetComponentInChildren<Slider>().onValueChanged?.Invoke(PlayerPrefs.GetFloat(ThirdPersonXKey, 0f));
         thirdPersonSliderPanel.GetComponentInChildren<Slider>().value = PlayerPrefs.GetFloat(ThirdPersonXKey, 0f);
+        
+        gameObject.SetActive(false);
     }
 
     private void SetUpSetting(string settingPath, string settingName, Func<bool> getSetting, UnityAction setSetting)

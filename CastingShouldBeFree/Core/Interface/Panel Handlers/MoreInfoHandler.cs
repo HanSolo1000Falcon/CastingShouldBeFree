@@ -17,6 +17,8 @@ public class MoreInfoHandler : Singleton<MoreInfoHandler>
             OnCastedRigChange(CoreHandler.Instance.CastedRig, null);
 
         CoreHandler.Instance.OnCastedRigChange += OnCastedRigChange;
+        
+        gameObject.SetActive(false);
     }
 
     private void OnCastedRigChange(VRRig currentRig, VRRig lastRig)
