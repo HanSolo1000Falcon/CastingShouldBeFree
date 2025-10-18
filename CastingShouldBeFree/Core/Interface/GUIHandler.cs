@@ -1,5 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using BepInEx;
 using CastingShouldBeFree.Core.Interface.Panel_Handlers;
 using CastingShouldBeFree.Core.Mode_Handlers;
@@ -197,30 +200,15 @@ public class GUIHandler : Singleton<GUIHandler>
     {
         Transform panelButtonContent = mainPanel.transform.Find("Chin/Panels/Viewport/Content");
         Transform panels             = Canvas.transform.Find("Panels");
+        Type[] panelHandlers = Assembly.GetExecutingAssembly().GetTypes().Where(t => !t.IsAbstract || t.IsClass || typeof(PanelHandlerBase).IsAssignableFrom(t)).ToArray();
 
         foreach (Transform panel in panels)
         {
             panel.gameObject.SetActive(true);
             panel.AddComponent<DraggableUI>();
             panel.Find("Exit").GetComponent<Button>().onClick.AddListener(() => panel.gameObject.SetActive(false));
-
-            switch (panel.gameObject.name)
-            {
-                case "SettingsPanel":
-                    panel.AddComponent<SettingsHandler>();
-
-                    break;
-
-                case "RoomStuffPanel":
-                    panel.AddComponent<RoomStuffHandler>();
-
-                    break;
-
-                case "ScoreboardPanel":
-                    panel.AddComponent<ScoreboardHandler>();
-
-                    break;
-            }
+            Type chosenType = panelHandlers.FirstOrDefault(type => type.Name == panel.gameObject.name.Replace(" ", "")[..^5] + "Handler");
+            panel.gameObject.AddComponent(chosenType);
         }
 
         foreach (Transform panelButton in panelButtonContent)

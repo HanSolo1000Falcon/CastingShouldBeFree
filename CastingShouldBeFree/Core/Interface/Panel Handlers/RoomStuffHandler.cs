@@ -1,15 +1,14 @@
 using System.Collections.Generic;
 using System.Linq;
-using CastingShouldBeFree.Utils;
 using GorillaNetworking;
 using TMPro;
 using UnityEngine.UI;
 
 namespace CastingShouldBeFree.Core.Interface.Panel_Handlers;
 
-public class RoomStuffHandler : Singleton<RoomStuffHandler>
+public class RoomStuffHandler : PanelHandlerBase
 {
-    protected override void Awake()
+    private void Awake()
     {
         TMP_InputField  roomNameInput  = transform.transform.Find("RoomInputField").GetComponent<TMP_InputField>();
         Button          joinRoomButton = transform.transform.Find("JoinRoom").GetComponent<Button>();
@@ -25,8 +24,6 @@ public class RoomStuffHandler : Singleton<RoomStuffHandler>
                                                    PhotonNetworkController.Instance.AttemptToJoinSpecificRoom(
                                                            FilterRoomName(roomNameInput.text),
                                                            JoinType.Solo));
-
-        gameObject.SetActive(false);
     }
 
     private string FilterRoomName(string roomName)

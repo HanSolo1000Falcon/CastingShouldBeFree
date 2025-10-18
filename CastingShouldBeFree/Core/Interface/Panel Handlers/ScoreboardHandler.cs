@@ -8,11 +8,11 @@ using static System.String;
 
 namespace CastingShouldBeFree.Core.Interface.Panel_Handlers;
 
-public class ScoreboardHandler : Singleton<ScoreboardHandler>
+public class ScoreboardHandler : PanelHandlerBase
 {
     public GameObject Scoreboard;
 
-    private void Start()
+    protected override void Start()
     {
         Scoreboard = GUIHandler.Instance.Canvas.transform.Find("Scoreboard").gameObject;
 
@@ -37,8 +37,8 @@ public class ScoreboardHandler : Singleton<ScoreboardHandler>
         TextMeshProUGUI timerText    = Scoreboard.transform.Find("Timer").GetComponent<TextMeshProUGUI>();
         TextMeshProUGUI lastTimeText = Scoreboard.transform.Find("Timer/LastTime").GetComponent<TextMeshProUGUI>();
         Plugin.Instance.gameObject.AddComponent<TimerHandler>().Initialize(timerText, lastTimeText);
-
-        gameObject.SetActive(false);
+        
+        base.Start();
     }
 
     private class TimerHandler : MonoBehaviour
@@ -56,6 +56,9 @@ public class ScoreboardHandler : Singleton<ScoreboardHandler>
                 currentTimingIndex = (currentTimingIndex + 1) % 3;
                 if (currentTimingIndex == 1) StartCoroutine(Timing());
             }
+            
+            if (currentTimingIndex == 1 && TagManager.Instance.UnTaggedRigs.Count == 0)
+                currentTimingIndex = 2;
         }
 
         public void Initialize(TextMeshProUGUI timerText, TextMeshProUGUI lastTimeText)

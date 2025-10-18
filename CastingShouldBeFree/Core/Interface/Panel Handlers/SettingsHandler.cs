@@ -2,7 +2,6 @@ using System;
 using System.Globalization;
 using CastingShouldBeFree.Core.Mode_Handlers;
 using CastingShouldBeFree.Nametags;
-using CastingShouldBeFree.Utils;
 using GorillaNetworking;
 using TMPro;
 using UnityEngine;
@@ -11,11 +10,11 @@ using UnityEngine.UI;
 
 namespace CastingShouldBeFree.Core.Interface.Panel_Handlers;
 
-public class SettingsHandler : Singleton<SettingsHandler>
+public class SettingsHandler : PanelHandlerBase
 {
     private const string ThirdPersonXKey = "ThirdPersonX";
 
-    protected override void Awake()
+    private void Awake()
     {
         Transform leaderboard = GUIHandler.Instance.Canvas.transform.Find("Leaderboard");
 
@@ -78,8 +77,6 @@ public class SettingsHandler : Singleton<SettingsHandler>
                              ?.Invoke(PlayerPrefs.GetFloat(ThirdPersonXKey, 0f));
 
         thirdPersonSliderPanel.GetComponentInChildren<Slider>().value = PlayerPrefs.GetFloat(ThirdPersonXKey, 0f);
-
-        gameObject.SetActive(false);
     }
 
     private void SetUpSetting(string settingPath, string settingName, Func<bool> getSetting, UnityAction setSetting)

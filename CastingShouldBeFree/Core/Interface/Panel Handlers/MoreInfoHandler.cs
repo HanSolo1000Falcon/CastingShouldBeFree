@@ -1,14 +1,13 @@
-using CastingShouldBeFree.Utils;
 using ExitGames.Client.Photon;
 using TMPro;
 
 namespace CastingShouldBeFree.Core.Interface.Panel_Handlers;
 
-public class MoreInfoHandler : Singleton<MoreInfoHandler>
+public class MoreInfoHandler : PanelHandlerBase
 {
     private TextMeshProUGUI modsText;
 
-    protected override void Awake()
+    private void Awake()
     {
         modsText      = transform.Find("ModsInstalled/InstalledMods").GetComponent<TextMeshProUGUI>();
         modsText.text = "<color=red>No</color> Player Selected";
@@ -17,8 +16,6 @@ public class MoreInfoHandler : Singleton<MoreInfoHandler>
             OnCastedRigChange(CoreHandler.Instance.CastedRig, null);
 
         CoreHandler.Instance.OnCastedRigChange += OnCastedRigChange;
-
-        gameObject.SetActive(false);
     }
 
     private void OnCastedRigChange(VRRig currentRig, VRRig lastRig)
