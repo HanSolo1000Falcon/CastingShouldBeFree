@@ -56,9 +56,6 @@ public class ScoreboardHandler : PanelHandlerBase
                 currentTimingIndex = (currentTimingIndex + 1) % 3;
                 if (currentTimingIndex == 1) StartCoroutine(Timing());
             }
-            
-            if (currentTimingIndex == 1 && TagManager.Instance.UnTaggedRigs.Count == 0)
-                currentTimingIndex = 2;
         }
 
         public void Initialize(TextMeshProUGUI timerText, TextMeshProUGUI lastTimeText)
@@ -76,6 +73,13 @@ public class ScoreboardHandler : PanelHandlerBase
             while (currentTimingIndex == 1)
             {
                 yield return new WaitForEndOfFrame();
+
+                if (TagManager.Instance.UnTaggedRigs.Count == 0)
+                {
+                    currentTimingIndex = 2;
+                    break;
+                }
+
                 elapsed        = Time.time - startTime - Offset;
                 timerText.text = elapsed.ToString("F2", CultureInfo.InvariantCulture);
             }
