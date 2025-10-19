@@ -55,16 +55,15 @@ public class ThirdPersonHandler : ModeHandlerBase
                         (currentPosition - lastPosition) /
                         Time.deltaTime; // so much easier than the angular velocity (type shit)
 
-                Vector3 angularVelocity = currentRotation.GetAngularVelocity(lastRotation);
+                Vector3 angularVelocity = currentRotation.GetAngularVelocity(lastRotation, Time.deltaTime);
 
                 targetPosition = Vector3.Lerp(CameraHandler.Instance.transform.position, targetPosition,
                         Time.deltaTime * realSmoothingFactor *
-                        Mathf.Clamp(velocity.magnitude, 1f,
-                                float.MaxValue)); // please tell me this isnt complete shit
+                        velocity.magnitude); // please tell me this isnt complete shit
 
                 targetRotation = Quaternion.Slerp(CameraHandler.Instance.transform.rotation, targetRotation,
                         Time.deltaTime * realSmoothingFactor *
-                        Mathf.Clamp(angularVelocity.magnitude, 1f, float.MaxValue)); // pls look good T-T
+                        (angularVelocity.magnitude / 18f + 1f)); // pls look good T-T
 
                 lastPosition = currentPosition;
                 lastRotation = currentRotation;

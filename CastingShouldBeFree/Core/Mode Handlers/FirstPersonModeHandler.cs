@@ -31,10 +31,10 @@ public class FirstPersonModeHandler : ModeHandlerBase
         {
             if (SnappySmoothing)
             {
-                Vector3 angularVelocity = targetRotation.GetAngularVelocity(lastRotation);
+                Vector3 angularVelocity = targetRotation.GetAngularVelocity(lastRotation, Time.deltaTime);
                 targetRotation = Quaternion.Slerp(CameraHandler.Instance.transform.rotation, targetRotation,
                         Time.deltaTime * GetSmoothingFactor() *
-                        angularVelocity.magnitude);
+                        (angularVelocity.magnitude / 18f + 1f));
 
                 lastRotation = CameraHandler.Instance.transform.rotation;
             }

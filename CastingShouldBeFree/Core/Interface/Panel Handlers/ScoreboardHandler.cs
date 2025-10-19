@@ -37,7 +37,7 @@ public class ScoreboardHandler : PanelHandlerBase
         TextMeshProUGUI timerText    = Scoreboard.transform.Find("Timer").GetComponent<TextMeshProUGUI>();
         TextMeshProUGUI lastTimeText = Scoreboard.transform.Find("Timer/LastTime").GetComponent<TextMeshProUGUI>();
         Plugin.Instance.gameObject.AddComponent<TimerHandler>().Initialize(timerText, lastTimeText);
-        
+
         base.Start();
     }
 
@@ -75,10 +75,7 @@ public class ScoreboardHandler : PanelHandlerBase
                 yield return new WaitForEndOfFrame();
 
                 if (TagManager.Instance.UnTaggedRigs.Count == 0)
-                {
-                    currentTimingIndex = 2;
-                    break;
-                }
+                    currentTimingIndex = (currentTimingIndex + 1) % 3;
 
                 elapsed        = Time.time - startTime - Offset;
                 timerText.text = elapsed.ToString("F2", CultureInfo.InvariantCulture);
@@ -92,6 +89,8 @@ public class ScoreboardHandler : PanelHandlerBase
             timerText.text    = "-10.00";
             lastTimeText.text = elapsed.ToString("F2", CultureInfo.InvariantCulture);
             lastTime          = elapsed;
+
+            currentTimingIndex = 0;
         }
     }
 }

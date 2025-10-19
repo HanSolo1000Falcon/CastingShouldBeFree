@@ -200,14 +200,19 @@ public class GUIHandler : Singleton<GUIHandler>
     {
         Transform panelButtonContent = mainPanel.transform.Find("Chin/Panels/Viewport/Content");
         Transform panels             = Canvas.transform.Find("Panels");
-        Type[] panelHandlers = Assembly.GetExecutingAssembly().GetTypes().Where(t => !t.IsAbstract || t.IsClass || typeof(PanelHandlerBase).IsAssignableFrom(t)).ToArray();
+        Type[] panelHandlers = Assembly.GetExecutingAssembly().GetTypes()
+                                       .Where(t => !t.IsAbstract || t.IsClass ||
+                                                   typeof(PanelHandlerBase).IsAssignableFrom(t)).ToArray();
 
         foreach (Transform panel in panels)
         {
             panel.gameObject.SetActive(true);
             panel.AddComponent<DraggableUI>();
             panel.Find("Exit").GetComponent<Button>().onClick.AddListener(() => panel.gameObject.SetActive(false));
-            Type chosenType = panelHandlers.FirstOrDefault(type => type.Name == panel.gameObject.name.Replace(" ", "")[..^5] + "Handler");
+            Type chosenType =
+                    panelHandlers.FirstOrDefault(type => type.Name ==
+                                                         panel.gameObject.name.Replace(" ", "")[..^5] + "Handler");
+
             panel.gameObject.AddComponent(chosenType);
         }
 
@@ -241,10 +246,10 @@ public class GUIHandler : Singleton<GUIHandler>
         moreInfo.Find("Exit").GetComponent<Button>().onClick.AddListener(() => moreInfo.gameObject.SetActive(false));
 
         playerInformation.Find("MoreInfo").GetComponent<Button>().onClick.AddListener(() =>
-            {
-                moreInfo.localPosition = Vector3.zero;
-                moreInfo.gameObject.SetActive(!moreInfo.gameObject.activeSelf);
-            });
+        {
+            moreInfo.localPosition = Vector3.zero;
+            moreInfo.gameObject.SetActive(!moreInfo.gameObject.activeSelf);
+        });
     }
 
     private IEnumerator DelayedInvoke()
@@ -252,8 +257,8 @@ public class GUIHandler : Singleton<GUIHandler>
         for (int i = 0; i < 10; i++)
             yield return new WaitForEndOfFrame();
 
-        FOVSlider.onValueChanged?.Invoke(PlayerPrefs.GetInt(CoreHandler.FovKey, 100));
-        NearClipSlider.onValueChanged?.Invoke(PlayerPrefs.GetInt(CoreHandler.NearClipKey, 100) / 100f);
+        FOVSlider.onValueChanged?.Invoke(PlayerPrefs.GetInt(CoreHandler.FovKey,             100));
+        NearClipSlider.onValueChanged?.Invoke(PlayerPrefs.GetInt(CoreHandler.NearClipKey,   1));
         SmoothingSlider.onValueChanged?.Invoke(PlayerPrefs.GetInt(CoreHandler.SmoothingKey, 18));
     }
 

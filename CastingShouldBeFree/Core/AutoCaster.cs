@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using CastingShouldBeFree.Utils;
 using UnityEngine;
 
@@ -12,7 +11,7 @@ public class AutoCaster : Singleton<AutoCaster>
 
     private void Update()
     {
-        if (!IsEnabled)
+        if (!IsEnabled || CoreHandler.Instance.CastedRig == null)
             return;
 
         if (CoreHandler.Instance.CastedRig.IsTagged())
@@ -23,46 +22,24 @@ public class AutoCaster : Singleton<AutoCaster>
 
         lastTime = Time.time;
 
-        List<VRRig> farAwayPeople = new();
-
-        VRRig chosenRig    = VRRig.LocalRig;
-        float fastestSpeed = 0f;
+        VRRig chosenRig                  = VRRig.LocalRig;
+        float fastestAndClosestRatioBest = float.MaxValue;
 
         foreach (VRRig untaggedRig in TagManager.Instance.UnTaggedRigs)
         {
-            float distance = GetTagDistance(untaggedRig);
-
-            if (distance > 20f)
-            {
-                farAwayPeople.Add(untaggedRig);
-
-                continue;
-            }
-
+            float   distance = GetTagDistance(untaggedRig);
             Vector3 velocity = untaggedRig.LatestVelocity();
             velocity.y = 0f;
-            float actualVelocity = velocity.magnitude;
+            float actualVelocity                                        = velocity.magnitude;
+            if (Mathf.Approximately(actualVelocity, 0f)) actualVelocity = 0.0001f;
+            float ratio                                                 = distance / actualVelocity;
 
-            if (actualVelocity > fastestSpeed)
+            if (ratio < fastestAndClosestRatioBest)
             {
-                fastestSpeed = actualVelocity;
-                chosenRig    = untaggedRig;
+                fastestAndClosestRatioBest = ratio;
+                chosenRig                  = untaggedRig;
             }
         }
-
-        if (farAwayPeople.Count > 0 && chosenRig == VRRig.LocalRig)
-            foreach (VRRig farAwayRig in farAwayPeople)
-            {
-                Vector3 velocity = farAwayRig.LatestVelocity();
-                velocity.y = 0f;
-                float actualVelocity = velocity.magnitude;
-
-                if (actualVelocity > fastestSpeed)
-                {
-                    fastestSpeed = actualVelocity;
-                    chosenRig    = farAwayRig;
-                }
-            }
 
         CoreHandler.Instance.CastedRig = chosenRig;
     }

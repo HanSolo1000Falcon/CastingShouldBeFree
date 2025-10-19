@@ -65,13 +65,13 @@ public class SettingsHandler : PanelHandlerBase
         Transform thirdPersonSliderPanel = transform.Find("ThirdPersonPanel");
 
         thirdPersonSliderPanel.GetComponentInChildren<Slider>().onValueChanged.AddListener(value =>
-        {
-            thirdPersonSliderPanel.GetComponentInChildren<TextMeshProUGUI>().text =
-                    $"Third Person Right: {value.ToString("F", CultureInfo.InvariantCulture)}";
+            {
+                thirdPersonSliderPanel.GetComponentInChildren<TextMeshProUGUI>().text =
+                        $"Third Person Right: {value.ToString("F", CultureInfo.InvariantCulture)}";
 
-            ThirdPersonHandler.X = value;
-            PlayerPrefs.SetFloat(ThirdPersonXKey, value);
-        });
+                ThirdPersonHandler.X = value;
+                PlayerPrefs.SetFloat(ThirdPersonXKey, value);
+            });
 
         thirdPersonSliderPanel.GetComponentInChildren<Slider>().onValueChanged
                              ?.Invoke(PlayerPrefs.GetFloat(ThirdPersonXKey, 0f));
