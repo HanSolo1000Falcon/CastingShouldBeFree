@@ -8,16 +8,12 @@ namespace CastingShouldBeFree.Core.Mode_Handlers;
 
 public class FirstPersonModeHandler : ModeHandlerBase
 {
-    private Quaternion lastRotation;
-
     public override string HandlerName => HandlerNameStatic();
 
     private void LateUpdate()
     {
         if (CoreHandler.Instance.CastedRig == null)
             return;
-
-        Quaternion targetRotation = CoreHandler.Instance.CastedRig.headMesh.transform.rotation;
 
         if (RollLock)
         {
@@ -27,27 +23,9 @@ public class FirstPersonModeHandler : ModeHandlerBase
             targetRotation = Quaternion.Euler(euler.x, euler.y, 0f);
         }
 
-        if (CameraHandler.Instance.SmoothingFactor > 0)
-        {
-            if (SnappySmoothing)
-            {
-                Vector3 angularVelocity = targetRotation.GetAngularVelocity(lastRotation, Time.deltaTime);
-                targetRotation = Quaternion.Slerp(CameraHandler.Instance.transform.rotation, targetRotation,
-                        Time.deltaTime * GetSmoothingFactor() *
-                        (angularVelocity.magnitude / 18f + 1f));
-
-                lastRotation = CameraHandler.Instance.transform.rotation;
-            }
-            else
-            {
-                targetRotation = Quaternion.Slerp(CameraHandler.Instance.transform.rotation, targetRotation,
-                        Time.deltaTime * GetSmoothingFactor());
-            }
-        }
-
-        CameraHandler.Instance.transform.rotation = targetRotation;
-        CameraHandler.Instance.transform.position =
-                CoreHandler.Instance.CastedRig.headMesh.transform.TransformPoint(new Vector3(0f, 0.15f, 0f));
+        HandleGenericSmoothing(Time.deltaTime);
+        targetPosition                            = CameraHandler.Instance.transform.position;
+        SetCameraPositionAndRotation();
     }
 
     private void OnEnable()

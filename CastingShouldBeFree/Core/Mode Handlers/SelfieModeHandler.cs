@@ -6,66 +6,65 @@ namespace CastingShouldBeFree.Core.Mode_Handlers;
 
 public class SelfieModeHandler : ModeHandlerBase
 {
+    private bool       isHolding;
+    private bool       leftHandActive;
     private Vector3    positionOffset;
     private Quaternion rotationOffset;
 
-    private         Vector3    targetPosition;
-    private         Quaternion targetRotation;
-    public override string     HandlerName => "Selfie";
+    public override string HandlerName => "Selfie";
 
     private void LateUpdate()
     {
-        if (Vector3.Distance(GTPlayer.Instance.leftControllerTransform.position, targetPosition) < 0.3f &&
-            ControllerInputPoller.instance.leftGrab)
+        if (!isHolding)
         {
-            if (ControllerInputPoller.instance.leftGrabMomentary)
-            {
-                positionOffset = GTPlayer.Instance.leftControllerTransform.InverseTransformPoint(targetPosition);
-                rotationOffset = Quaternion.Inverse(GTPlayer.Instance.leftControllerTransform.rotation) *
-                                 targetRotation;
-            }
-            else if (ControllerInputPoller.instance.leftGrab)
-            {
-                targetPosition = GTPlayer.Instance.leftControllerTransform.TransformPoint(positionOffset);
-                targetRotation = GTPlayer.Instance.leftControllerTransform.rotation * rotationOffset;
-            }
+            TryStartHolding(GTPlayer.Instance.leftControllerTransform, ControllerInputPoller.instance.leftGrab,
+                    ControllerInputPoller.instance.leftGrabMomentary,  true);
+
+            TryStartHolding(GTPlayer.Instance.rightControllerTransform, ControllerInputPoller.instance.rightGrab,
+                    ControllerInputPoller.instance.rightGrabMomentary,  false);
         }
-        else if (Vector3.Distance(GTPlayer.Instance.rightControllerTransform.position, targetPosition) < 0.3f &&
-                 ControllerInputPoller.instance.rightGrab)
+        else
         {
-            if (ControllerInputPoller.instance.rightGrabMomentary)
+            Transform activeController = leftHandActive
+                                                 ? GTPlayer.Instance.leftControllerTransform
+                                                 : GTPlayer.Instance.rightControllerTransform;
+
+            bool grabHeld = leftHandActive
+                                    ? ControllerInputPoller.instance.leftGrab
+                                    : ControllerInputPoller.instance.rightGrab;
+
+            if (grabHeld)
             {
-                positionOffset = GTPlayer.Instance.rightControllerTransform.InverseTransformPoint(targetPosition);
-                rotationOffset = Quaternion.Inverse(GTPlayer.Instance.rightControllerTransform.rotation) *
-                                 targetRotation;
+                targetPosition = activeController.TransformPoint(positionOffset);
+                targetRotation = activeController.rotation * rotationOffset;
             }
-            else if (ControllerInputPoller.instance.rightGrab)
+            else
             {
-                targetPosition = GTPlayer.Instance.rightControllerTransform.TransformPoint(positionOffset);
-                targetRotation = GTPlayer.Instance.rightControllerTransform.rotation * rotationOffset;
+                isHolding = false;
             }
         }
 
-        Vector3    targetPositionReal = targetPosition;
-        Quaternion targetRotationReal = targetRotation;
-
-        if (CameraHandler.Instance.SmoothingFactor > 0)
-        {
-            int realSmoothingFactor = GetSmoothingFactor();
-            targetPositionReal = Vector3.Lerp(CameraHandler.Instance.transform.position, targetPosition,
-                    Time.deltaTime * realSmoothingFactor);
-
-            targetRotationReal = Quaternion.Slerp(CameraHandler.Instance.transform.rotation, targetRotation,
-                    Time.deltaTime * realSmoothingFactor);
-        }
-
-        CameraHandler.Instance.transform.position = targetPositionReal;
-        CameraHandler.Instance.transform.rotation = targetRotationReal;
+        HandleGenericSmoothing(Time.deltaTime);
+        SetCameraPositionAndRotation();
     }
 
     private void OnEnable()
     {
         targetPosition = CameraHandler.Instance.transform.position;
         targetRotation = CameraHandler.Instance.transform.rotation;
+    }
+
+    private void TryStartHolding(Transform controller, bool grabHeld, bool grabPressed, bool isLeft)
+    {
+        if (!grabHeld || !grabPressed)
+            return;
+
+        if (Vector3.Distance(controller.position, targetPosition) < 0.3f)
+        {
+            positionOffset = controller.InverseTransformPoint(targetPosition);
+            rotationOffset = Quaternion.Inverse(controller.rotation) * targetRotation;
+            isHolding      = true;
+            leftHandActive = isLeft;
+        }
     }
 }

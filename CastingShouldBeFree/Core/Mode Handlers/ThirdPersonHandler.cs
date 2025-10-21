@@ -9,18 +9,12 @@ public class ThirdPersonHandler : ModeHandlerBase
     public static float X = 0f;
     public static bool  BodyLocked;
 
-    private Vector3    lastPosition;
-    private Quaternion lastRotation; // for the thangy langs idfk gng
-
     public override string HandlerName => HandlerNameStatic();
 
     private void LateUpdate()
     {
         if (CoreHandler.Instance.CastedRig == null)
             return;
-
-        Vector3    targetPosition;
-        Quaternion targetRotation;
 
         if (BodyLocked)
         {
@@ -42,44 +36,8 @@ public class ThirdPersonHandler : ModeHandlerBase
             targetRotation = Quaternion.Euler(euler.x, euler.y, 0f);
         }
 
-        if (CameraHandler.Instance.SmoothingFactor > 0)
-        {
-            int realSmoothingFactor = GetSmoothingFactor();
-
-            if (SnappySmoothing)
-            {
-                Vector3    currentPosition = targetPosition;
-                Quaternion currentRotation = targetRotation;
-
-                Vector3 velocity =
-                        (currentPosition - lastPosition) /
-                        Time.deltaTime; // so much easier than the angular velocity (type shit)
-
-                Vector3 angularVelocity = currentRotation.GetAngularVelocity(lastRotation, Time.deltaTime);
-
-                targetPosition = Vector3.Lerp(CameraHandler.Instance.transform.position, targetPosition,
-                        Time.deltaTime * realSmoothingFactor *
-                        velocity.magnitude); // please tell me this isnt complete shit
-
-                targetRotation = Quaternion.Slerp(CameraHandler.Instance.transform.rotation, targetRotation,
-                        Time.deltaTime * realSmoothingFactor *
-                        (angularVelocity.magnitude / 18f + 1f)); // pls look good T-T
-
-                lastPosition = currentPosition;
-                lastRotation = currentRotation;
-            }
-            else
-            {
-                targetPosition = Vector3.Lerp(CameraHandler.Instance.transform.position, targetPosition,
-                        Time.deltaTime * realSmoothingFactor);
-
-                targetRotation = Quaternion.Slerp(CameraHandler.Instance.transform.rotation, targetRotation,
-                        Time.deltaTime * realSmoothingFactor);
-            }
-        }
-
-        CameraHandler.Instance.transform.position = targetPosition;
-        CameraHandler.Instance.transform.rotation = targetRotation;
+        HandleGenericSmoothing(Time.deltaTime);
+        SetCameraPositionAndRotation();
     }
 
     public static string HandlerNameStatic() => "Third Person";

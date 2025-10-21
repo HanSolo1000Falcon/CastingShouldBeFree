@@ -9,9 +9,6 @@ public class FreeCam : ModeHandlerBase
 {
     private float pitch;
 
-    private Vector3    targetPosition;
-    private Quaternion targetRotation;
-
     private         float  yaw;
     public override string HandlerName => "Free Cam";
 
@@ -30,7 +27,6 @@ public class FreeCam : ModeHandlerBase
         if (UnityInput.Current.GetKey(KeyCode.LeftControl)) movementDir -= Vector3.up * speed;
 
         targetPosition += movementDir;
-        Vector3 realTargetPosition = targetPosition;
 
         if (Mouse.current.rightButton.isPressed)
         {
@@ -50,20 +46,8 @@ public class FreeCam : ModeHandlerBase
             Cursor.lockState = CursorLockMode.None;
         }
 
-        Quaternion realTargetRotation = targetRotation;
-
-        if (CameraHandler.Instance.SmoothingFactor > 0)
-        {
-            int realSmoothingFactor = GetSmoothingFactor();
-            realTargetPosition = Vector3.Lerp(CameraHandler.Instance.transform.position, targetPosition,
-                    Time.deltaTime * realSmoothingFactor);
-
-            realTargetRotation = Quaternion.Slerp(CameraHandler.Instance.transform.rotation, targetRotation,
-                    Time.deltaTime * realSmoothingFactor);
-        }
-
-        CameraHandler.Instance.transform.position = realTargetPosition;
-        CameraHandler.Instance.transform.rotation = realTargetRotation;
+        HandleGenericSmoothing(Time.deltaTime);
+        SetCameraPositionAndRotation();
     }
 
     private void OnEnable()
