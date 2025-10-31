@@ -17,17 +17,17 @@ public class SelfieModeHandler : ModeHandlerBase
     {
         if (!isHolding)
         {
-            TryStartHolding(GTPlayer.Instance.leftControllerTransform, ControllerInputPoller.instance.leftGrab,
+            TryStartHolding(GTPlayer.Instance.leftHand.controllerTransform, ControllerInputPoller.instance.leftGrab,
                     ControllerInputPoller.instance.leftGrabMomentary,  true);
 
-            TryStartHolding(GTPlayer.Instance.rightControllerTransform, ControllerInputPoller.instance.rightGrab,
+            TryStartHolding(GTPlayer.Instance.rightHand.controllerTransform, ControllerInputPoller.instance.rightGrab,
                     ControllerInputPoller.instance.rightGrabMomentary,  false);
         }
         else
         {
             Transform activeController = leftHandActive
-                                                 ? GTPlayer.Instance.leftControllerTransform
-                                                 : GTPlayer.Instance.rightControllerTransform;
+                                                 ? GTPlayer.Instance.leftHand.controllerTransform
+                                                 : GTPlayer.Instance.rightHand.controllerTransform;
 
             bool grabHeld = leftHandActive
                                     ? ControllerInputPoller.instance.leftGrab

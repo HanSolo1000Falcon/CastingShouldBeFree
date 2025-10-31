@@ -15,6 +15,8 @@ public class FirstPersonModeHandler : ModeHandlerBase
         if (CoreHandler.Instance.CastedRig == null)
             return;
 
+        targetRotation = CoreHandler.Instance.CastedRig.headMesh.transform.rotation;
+        
         if (RollLock)
         {
             Vector3 forward = targetRotation * Vector3.forward;
@@ -22,9 +24,9 @@ public class FirstPersonModeHandler : ModeHandlerBase
             Vector3 euler = targetRotation.eulerAngles;
             targetRotation = Quaternion.Euler(euler.x, euler.y, 0f);
         }
-
+        
         HandleGenericSmoothing(Time.deltaTime);
-        targetPosition                            = CameraHandler.Instance.transform.position;
+        targetPosition = CoreHandler.Instance.CastedRig.headMesh.transform.TransformPoint(new Vector3(0f, 0.15f, 0f));
         SetCameraPositionAndRotation();
     }
 

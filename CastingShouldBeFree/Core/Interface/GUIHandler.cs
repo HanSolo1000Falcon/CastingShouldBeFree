@@ -192,10 +192,8 @@ public class GUIHandler : Singleton<GUIHandler>
         CoreHandler.Instance.MinSmoothing = (int)SmoothingSlider.minValue;
 
         SmoothingSlider.onValueChanged.AddListener(value => CoreHandler.Instance.SetSmoothing((int)value));
-
-        StartCoroutine(DelayedInvoke());
     }
-
+    
     private void SetUpOtherPanels(GameObject mainPanel)
     {
         Transform panelButtonContent = mainPanel.transform.Find("Chin/Panels/Viewport/Content");
@@ -252,21 +250,15 @@ public class GUIHandler : Singleton<GUIHandler>
         });
     }
 
-    private IEnumerator DelayedInvoke()
-    {
-        for (int i = 0; i < 10; i++)
-            yield return new WaitForEndOfFrame();
-
-        FOVSlider.onValueChanged?.Invoke(PlayerPrefs.GetInt(CoreHandler.FovKey,             100));
-        NearClipSlider.onValueChanged?.Invoke(PlayerPrefs.GetInt(CoreHandler.NearClipKey,   1));
-        SmoothingSlider.onValueChanged?.Invoke(PlayerPrefs.GetInt(CoreHandler.SmoothingKey, 18));
-    }
-
     public void InitEventSystem()
     {
         HasInitEventSystem             = true;
         CoreHandler.Instance.CastedRig = VRRig.LocalRig;
         Canvas.SetActive(true);
+        CameraHandler.Instance.Initialize();
+        FOVSlider.onValueChanged?.Invoke(PlayerPrefs.GetInt(CoreHandler.FovKey,             100));
+        NearClipSlider.onValueChanged?.Invoke(PlayerPrefs.GetInt(CoreHandler.NearClipKey,   1));
+        SmoothingSlider.onValueChanged?.Invoke(PlayerPrefs.GetInt(CoreHandler.SmoothingKey, 18));
     }
 
     private void OnRigSpawned(VRRig rig)

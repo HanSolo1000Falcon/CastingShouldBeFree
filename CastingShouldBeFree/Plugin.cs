@@ -64,12 +64,6 @@ public class Plugin : BaseUnityPlugin
 
         PCCamera = GorillaTagger.Instance.thirdPersonCamera.transform.GetChild(0);
 
-        foreach (Transform child in PCCamera)
-            Destroy(child.gameObject);
-
-        if (!XRSettings.isDeviceActive)
-            PCCamera.AddComponent<AudioListener>();
-
         GameObject cameraPrefab = CastingBundle.LoadAsset<GameObject>("CardboardCamera");
         GameObject camera       = Instantiate(cameraPrefab);
         camera.AddComponent<CameraHandler>();

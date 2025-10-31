@@ -1,5 +1,6 @@
 using CastingShouldBeFree.Utils;
 using UnityEngine;
+using UnityEngine.XR;
 
 namespace CastingShouldBeFree.Core.Interface;
 
@@ -7,14 +8,20 @@ public class CameraHandler : Singleton<CameraHandler>
 {
     public int SmoothingFactor;
 
-    private void Start()
+    public void Initialize()
     {
-        FixEverything(gameObject);
+        foreach (Transform child in Plugin.Instance.PCCamera)
+            Destroy(child.gameObject);
 
+        if (!XRSettings.isDeviceActive)
+            Plugin.Instance.PCCamera.AddComponent<AudioListener>();
+        
         Plugin.Instance.PCCamera.transform.SetParent(transform);
         Plugin.Instance.PCCamera.transform.localPosition = Vector3.zero;
         Plugin.Instance.PCCamera.transform.localRotation = Quaternion.identity;
     }
+    
+    private void Start() => FixEverything(gameObject);
 
     private void FixEverything(GameObject obj)
     {

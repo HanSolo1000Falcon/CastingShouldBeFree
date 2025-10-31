@@ -47,7 +47,7 @@ public abstract class ModeHandlerBase : MonoBehaviour
         lastRotation = CameraHandler.Instance.transform.rotation;
         lastPosition = CameraHandler.Instance.transform.position;
     }
-
+    
     protected void SetCameraPositionAndRotation()
     {
         CameraHandler.Instance.transform.position = targetPosition;
