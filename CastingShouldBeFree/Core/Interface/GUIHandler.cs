@@ -256,6 +256,7 @@ public class GUIHandler : Singleton<GUIHandler>
         CoreHandler.Instance.CastedRig = VRRig.LocalRig;
         Canvas.SetActive(true);
         CameraHandler.Instance.Initialize();
+        WorldSpaceHandler.Instance.SetUpRenderTexture();
         FOVSlider.onValueChanged?.Invoke(PlayerPrefs.GetInt(CoreHandler.FovKey,             100));
         NearClipSlider.onValueChanged?.Invoke(PlayerPrefs.GetInt(CoreHandler.NearClipKey,   1));
         SmoothingSlider.onValueChanged?.Invoke(PlayerPrefs.GetInt(CoreHandler.SmoothingKey, 18));

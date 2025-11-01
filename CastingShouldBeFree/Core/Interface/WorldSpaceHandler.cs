@@ -29,7 +29,6 @@ public class WorldSpaceHandler : Singleton<WorldSpaceHandler>
         Destroy(canvasPrefab);
         canvas.name = "InGameCanvas";
 
-        SetUpRenderTexture();
         SetUpCameraModes();
         SetUpCameraSettings();
 
@@ -64,7 +63,7 @@ public class WorldSpaceHandler : Singleton<WorldSpaceHandler>
         wasPressed = isPressed;
     }
 
-    private void SetUpRenderTexture()
+    public void SetUpRenderTexture()
     {
         RenderTexture renderTexture = new(1920, 1080, 24, RenderTextureFormat.ARGB32);
         renderTexture.name = "VR Render Texture";
