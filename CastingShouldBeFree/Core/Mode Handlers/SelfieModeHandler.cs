@@ -17,11 +17,8 @@ public class SelfieModeHandler : ModeHandlerBase
     {
         if (!isHolding)
         {
-            TryStartHolding(GTPlayer.Instance.leftHand.controllerTransform, ControllerInputPoller.instance.leftGrab,
-                    ControllerInputPoller.instance.leftGrabMomentary,  true);
-
-            TryStartHolding(GTPlayer.Instance.rightHand.controllerTransform, ControllerInputPoller.instance.rightGrab,
-                    ControllerInputPoller.instance.rightGrabMomentary,  false);
+            TryStartHolding(GTPlayer.Instance.leftHand.controllerTransform, ControllerInputPoller.instance.leftGrab,  true);
+            TryStartHolding(GTPlayer.Instance.rightHand.controllerTransform, ControllerInputPoller.instance.rightGrab,  false);
         }
         else
         {
@@ -54,9 +51,9 @@ public class SelfieModeHandler : ModeHandlerBase
         targetRotation = CameraHandler.Instance.transform.rotation;
     }
 
-    private void TryStartHolding(Transform controller, bool grabHeld, bool grabPressed, bool isLeft)
+    private void TryStartHolding(Transform controller, bool grabHeld, bool isLeft)
     {
-        if (!grabHeld || !grabPressed)
+        if (!grabHeld)
             return;
 
         if (Vector3.Distance(controller.position, targetPosition) < 0.3f)

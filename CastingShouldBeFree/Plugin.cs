@@ -7,6 +7,7 @@ using CastingShouldBeFree.Core;
 using CastingShouldBeFree.Core.Interface;
 using CastingShouldBeFree.Nametags;
 using CastingShouldBeFree.Utils;
+using CastingShouldBeFree.Version_Checking;
 using GorillaNetworking;
 using HarmonyLib;
 using Newtonsoft.Json;
@@ -71,6 +72,7 @@ public class Plugin : BaseUnityPlugin
         Destroy(cameraPrefab);
 
         GameObject componentHolder = new("Casting Should Be Free");
+        componentHolder.AddComponent<VersionChecker>();
         componentHolder.AddComponent<TagManager>();
         componentHolder.AddComponent<CoreHandler>();
         componentHolder.AddComponent<NametagHandler>();

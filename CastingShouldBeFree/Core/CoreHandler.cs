@@ -1,11 +1,14 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using CastingShouldBeFree.Core.Interface;
 using CastingShouldBeFree.Core.Mode_Handlers;
 using CastingShouldBeFree.Utils;
+using TMPro;
 using UnityEngine;
+using Version = CastingShouldBeFree.Version_Checking.Version;
 
 namespace CastingShouldBeFree.Core;
 
@@ -30,6 +33,25 @@ public class CoreHandler : Singleton<CoreHandler>
     public          Action<VRRig, VRRig>                OnCastedRigChange;
 
     public Action<string> OnCurrentHandlerChange;
+
+    public void OnDeprecatedVersionDetected(Version localVersion, Version remoteVersion, string explanation) =>
+            StartCoroutine(WaitForInitialization(localVersion, remoteVersion, explanation));
+
+    private IEnumerator WaitForInitialization(Version localVersion, Version remoteVersion, string explanation)
+    {
+        while (GUIHandler.Instance == null || WorldSpaceHandler.Instance == null || GUIHandler.Instance.Canvas == null || WorldSpaceHandler.Instance.Canvas == null)
+            yield return null;
+        
+        Destroy(GUIHandler.Instance.Canvas);
+        Destroy(WorldSpaceHandler.Instance.Canvas);
+        Destroy(GUIHandler.Instance);
+        Destroy(WorldSpaceHandler.Instance);
+
+        GameObject deprecatedCanvas = Instantiate(Plugin.Instance.CastingBundle.LoadAsset<GameObject>("DeprecatedVersionCanvas"));
+        deprecatedCanvas.transform.Find("Panel/Top/Subtitle").GetComponent<TextMeshProUGUI>().text =
+                $"<color=red>Current version: {localVersion.Major}.{localVersion.Minor}.{localVersion.Patch}</color>\n<color=green>Latest version: {remoteVersion.Major}.{remoteVersion.Minor}.{remoteVersion.Patch}</color>";
+        deprecatedCanvas.transform.Find("Panel/Explanation").GetComponent<TextMeshProUGUI>().text = explanation;
+    }
 
     private void Start()
     {

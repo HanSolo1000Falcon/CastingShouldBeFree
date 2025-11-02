@@ -4,6 +4,7 @@ using CastingShouldBeFree.Utils;
 using GorillaLocomotion;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace CastingShouldBeFree.Core.Interface;
@@ -16,7 +17,7 @@ public class WorldSpaceHandler : Singleton<WorldSpaceHandler>
     public TextMeshProUGUI NearClipText;
     public TextMeshProUGUI SmoothingText;
 
-    private GameObject canvas;
+    [FormerlySerializedAs("canvas")] public GameObject Canvas;
 
     private float initTime;
 
@@ -25,14 +26,14 @@ public class WorldSpaceHandler : Singleton<WorldSpaceHandler>
     private void Start()
     {
         GameObject canvasPrefab = Plugin.Instance.CastingBundle.LoadAsset<GameObject>("InGameCanvas");
-        canvas = Instantiate(canvasPrefab);
+        Canvas = Instantiate(canvasPrefab);
         Destroy(canvasPrefab);
-        canvas.name = "InGameCanvas";
+        Canvas.name = "InGameCanvas";
 
         SetUpCameraModes();
         SetUpCameraSettings();
 
-        canvas.SetActive(false);
+        Canvas.SetActive(false);
         initTime = Time.time;
     }
 
@@ -45,13 +46,13 @@ public class WorldSpaceHandler : Singleton<WorldSpaceHandler>
 
         if (isPressed && !wasPressed)
         {
-            canvas.SetActive(!canvas.activeSelf);
+            Canvas.SetActive(!Canvas.activeSelf);
 
-            canvas.transform.position = GTPlayer.Instance.bodyCollider.transform.position +
+            Canvas.transform.position = GTPlayer.Instance.bodyCollider.transform.position +
                                         GTPlayer.Instance.bodyCollider.transform.forward * 0.5f;
 
-            canvas.transform.LookAt(GTPlayer.Instance.headCollider.transform);
-            canvas.transform.Rotate(0f, 180f, 0f);
+            Canvas.transform.LookAt(GTPlayer.Instance.headCollider.transform);
+            Canvas.transform.Rotate(0f, 180f, 0f);
 
             if (!GUIHandler.Instance.HasInitEventSystem)
             {
@@ -71,7 +72,7 @@ public class WorldSpaceHandler : Singleton<WorldSpaceHandler>
         // ^^ doing it like this because the stupid fucking assetbundle wouldnt load my render texture
         // assetbundles are so cool but for some fucking reason that bitch wouldnt load!!!!!!
 
-        canvas.transform.Find("MainPanel/Image").GetComponent<RawImage>().texture = renderTexture;
+        Canvas.transform.Find("MainPanel/Image").GetComponent<RawImage>().texture = renderTexture;
 
         RenderTextureCamera             = new GameObject("Render Texture Camera").AddComponent<Camera>();
         RenderTextureCamera.cullingMask = Plugin.Instance.PCCamera.GetComponent<Camera>().cullingMask;
@@ -86,7 +87,7 @@ public class WorldSpaceHandler : Singleton<WorldSpaceHandler>
     private void SetUpCameraModes()
     {
         GameObject buttonPrefab = Plugin.Instance.CastingBundle.LoadAsset<GameObject>("ModeButtonTemplate");
-        Transform  modeContent  = canvas.transform.Find("MainPanel/Chin/Content");
+        Transform  modeContent  = Canvas.transform.Find("MainPanel/Chin/Content");
 
         foreach (KeyValuePair<string, ModeHandlerBase> modeHandlerPair in CoreHandler.Instance.ModeHandlers)
         {
@@ -99,7 +100,7 @@ public class WorldSpaceHandler : Singleton<WorldSpaceHandler>
 
     private void SetUpCameraSettings()
     {
-        Transform tunablesContent = canvas.transform.Find("MainPanel/Tunables/Content");
+        Transform tunablesContent = Canvas.transform.Find("MainPanel/Tunables/Content");
 
         Transform fovPanel = tunablesContent.Find("FOVPanel");
         FOVText = fovPanel.Find("FOVText").GetComponent<TextMeshProUGUI>();
