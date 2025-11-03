@@ -12,6 +12,7 @@ namespace CastingShouldBeFree.Core.Interface.Panel_Handlers;
 
 public class MapsHandler : PanelHandlerBase
 {
+    private bool      isZeroGravity;
     private Transform mapsButtonHolder;
 
     protected override void Start()
@@ -30,7 +31,12 @@ public class MapsHandler : PanelHandlerBase
         
         Destroy(mapButtonPrefab);
 
-        transform.Find("ZeroGravity").GetComponent<Button>();
+        transform.Find("ZeroGravity").GetComponent<Button>().onClick.AddListener(() =>
+        {
+            isZeroGravity = !isZeroGravity;
+            if (isZeroGravity) Plugin.Instance.OnFixedUpdate += ZeroGravity;
+            else Plugin.Instance.OnFixedUpdate -= ZeroGravity;
+        });
         
         base.Start();
     }
@@ -41,5 +47,11 @@ public class MapsHandler : PanelHandlerBase
         if (string.IsNullOrEmpty(zoneName)) return zoneName;
         string spacedZoneName = Regex.Replace(zoneName, "(?<!^)([A-Z])", " $1");
         return CultureInfo.InvariantCulture.TextInfo.ToTitleCase(spacedZoneName);
+    }
+
+    private void ZeroGravity()
+    {
+        GorillaTagger.Instance.rigidbody.linearVelocity = Vector3.zero;
+        GorillaTagger.Instance.rigidbody.AddForce(-Physics.gravity * GorillaTagger.Instance.rigidbody.mass);
     }
 }
