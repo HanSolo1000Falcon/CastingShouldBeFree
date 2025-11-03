@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Reflection;
@@ -8,12 +9,10 @@ using CastingShouldBeFree.Core.Interface;
 using CastingShouldBeFree.Nametags;
 using CastingShouldBeFree.Utils;
 using CastingShouldBeFree.Version_Checking;
-using GorillaNetworking;
 using HarmonyLib;
 using Newtonsoft.Json;
 using TMPro;
 using UnityEngine;
-using UnityEngine.XR;
 
 namespace CastingShouldBeFree;
 
@@ -23,6 +22,10 @@ public class Plugin : BaseUnityPlugin
     public const  string GorillaInfoURL = "https://raw.githubusercontent.com/HanSolo1000Falcon/GorillaInfo/main/";
     public static Plugin Instance { get; private set; }
 
+    public Action OnFixedUpdate;
+    public Action OnLateUpdate;
+    public Action OnUpdate;
+    
     public AssetBundle CastingBundle { get; private set; }
 
     public Transform PCCamera { get; private set; }
@@ -42,12 +45,6 @@ public class Plugin : BaseUnityPlugin
 
         Harmony harmony = new(Constants.PluginGuid);
         harmony.PatchAll();
-    }
-
-    private void Update()
-    {
-        if (UnityInput.Current.GetKeyDown(KeyCode.I))
-            PhotonNetworkController.Instance.disableAFKKick = true;
     }
 
     private void OnGameInitialized()
@@ -109,4 +106,8 @@ public class Plugin : BaseUnityPlugin
                                                nametag.UpdatePlayerPlatform();
                                        };
     }
+    
+    private void FixedUpdate() => OnFixedUpdate?.Invoke();
+    private void LateUpdate()  => OnLateUpdate?.Invoke();
+    private void Update()      => OnUpdate?.Invoke();
 }

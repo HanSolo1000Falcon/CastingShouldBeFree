@@ -11,6 +11,7 @@ public class FreeCam : ModeHandlerBase
 
     private         float  yaw;
     public override string HandlerName => "Free Cam";
+    public override bool IsPlayerDependent => false;
 
     private void LateUpdate()
     {

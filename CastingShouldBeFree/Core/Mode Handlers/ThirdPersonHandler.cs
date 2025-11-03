@@ -10,6 +10,7 @@ public class ThirdPersonHandler : ModeHandlerBase
     public static bool  BodyLocked;
 
     public override string HandlerName => HandlerNameStatic();
+    public override bool IsPlayerDependent => true;
 
     private void LateUpdate()
     {

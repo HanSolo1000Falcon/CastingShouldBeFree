@@ -9,6 +9,7 @@ namespace CastingShouldBeFree.Core.Mode_Handlers;
 public class FirstPersonModeHandler : ModeHandlerBase
 {
     public override string HandlerName => HandlerNameStatic();
+    public override bool IsPlayerDependent => true;
 
     private void LateUpdate()
     {

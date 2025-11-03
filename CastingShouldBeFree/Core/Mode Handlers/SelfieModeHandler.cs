@@ -12,6 +12,7 @@ public class SelfieModeHandler : ModeHandlerBase
     private Quaternion rotationOffset;
 
     public override string HandlerName => "Selfie";
+    public override bool IsPlayerDependent => false;
 
     private void LateUpdate()
     {

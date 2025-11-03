@@ -16,6 +16,7 @@ public abstract class ModeHandlerBase : MonoBehaviour
     protected Quaternion lastRotation;
 
     public abstract string HandlerName { get; }
+    public abstract bool IsPlayerDependent { get; }
 
     protected int GetSmoothingFactor() =>
             -(CameraHandler.Instance.SmoothingFactor - (CoreHandler.Instance.MaxSmoothing + 1));
