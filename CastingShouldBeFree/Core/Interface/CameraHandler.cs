@@ -45,7 +45,8 @@ public class CameraHandler : Singleton<CameraHandler>
     private void ToggleVisibilityInternal(GameObject obj, bool toggled)
     {
         foreach (Transform child in obj.transform)
-            ToggleVisibilityInternal(child.gameObject, toggled);
+            if (!child.gameObject.name.Contains("Canvas"))
+                ToggleVisibilityInternal(child.gameObject, toggled);
 
         if (obj.TryGetComponent(out Renderer renderer))
             renderer.enabled = toggled;

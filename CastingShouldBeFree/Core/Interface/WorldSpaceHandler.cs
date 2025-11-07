@@ -17,8 +17,10 @@ public class WorldSpaceHandler : Singleton<WorldSpaceHandler>
     public TextMeshProUGUI NearClipText;
     public TextMeshProUGUI SmoothingText;
 
-    [FormerlySerializedAs("canvas")] public GameObject Canvas;
+    public GameObject Canvas;
 
+    private bool isInterfaceLocked;
+    
     private float initTime;
 
     private bool wasPressed;
@@ -32,9 +34,55 @@ public class WorldSpaceHandler : Singleton<WorldSpaceHandler>
 
         SetUpCameraModes();
         SetUpCameraSettings();
+        SetUpCameraLocking();
 
         Canvas.SetActive(false);
         initTime = Time.time;
+    }
+    
+    private void SetUpCameraLocking()
+    {
+        Canvas.transform.Find("MainPanel/LockButton/Collider").AddComponent<PressableButton>().OnPress = () =>
+            {
+                isInterfaceLocked = !isInterfaceLocked;
+
+                if (isInterfaceLocked)
+                {
+                    LockCamera(CoreHandler.Instance.CurrentHandlerName);
+                    CoreHandler.Instance.OnCurrentHandlerChange += LockCamera;
+                }
+                else
+                {
+                    Canvas.transform.SetParent(null);
+                    Canvas.transform.position = GTPlayer.Instance.bodyCollider.transform.position +
+                                                GTPlayer.Instance.bodyCollider.transform.forward * 0.5f;
+
+                    Canvas.transform.LookAt(GTPlayer.Instance.headCollider.transform);
+                    Canvas.transform.Rotate(0f, 180f, 0f);
+                    CoreHandler.Instance.OnCurrentHandlerChange -= LockCamera;
+                }
+            };
+    }
+
+    private void LockCamera(string handlerName)
+    {
+        ModeHandlerBase modeHandler = CoreHandler.Instance.ModeHandlers[handlerName];
+        
+        if (modeHandler.IsPlayerDependent)
+        {
+            Canvas.transform.SetParent(null);
+            Canvas.transform.position = GTPlayer.Instance.bodyCollider.transform.position +
+                                        GTPlayer.Instance.bodyCollider.transform.forward * 0.5f;
+
+            Canvas.transform.LookAt(GTPlayer.Instance.headCollider.transform);
+            Canvas.transform.Rotate(0f, 180f, 0f);
+        }
+        else
+        {
+            Canvas.transform.SetParent(CameraHandler.Instance.transform);
+            Canvas.transform.localPosition = new Vector3(0f, -0.08f, 0f);
+            Canvas.transform.localRotation = Quaternion.Euler(0f, 180f, 0f);
+        }
     }
 
     private void Update()
@@ -48,11 +96,14 @@ public class WorldSpaceHandler : Singleton<WorldSpaceHandler>
         {
             Canvas.SetActive(!Canvas.activeSelf);
 
-            Canvas.transform.position = GTPlayer.Instance.bodyCollider.transform.position +
-                                        GTPlayer.Instance.bodyCollider.transform.forward * 0.5f;
+            if (!isInterfaceLocked || CoreHandler.Instance.ModeHandlers[CoreHandler.Instance.CurrentHandlerName].IsPlayerDependent)
+            {
+                Canvas.transform.position = GTPlayer.Instance.bodyCollider.transform.position +
+                                            GTPlayer.Instance.bodyCollider.transform.forward * 0.5f;
 
-            Canvas.transform.LookAt(GTPlayer.Instance.headCollider.transform);
-            Canvas.transform.Rotate(0f, 180f, 0f);
+                Canvas.transform.LookAt(GTPlayer.Instance.headCollider.transform);
+                Canvas.transform.Rotate(0f, 180f, 0f);
+            }
 
             if (!GUIHandler.Instance.HasInitEventSystem)
             {
