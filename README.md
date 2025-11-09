@@ -1,4 +1,8 @@
 # Casting Should Be Free ![Downloads](https://img.shields.io/github/downloads/HanSolo1000Falcon/CastingShouldBeFree/total)
+
+> Legal Notice<br>
+> This project is licensed under the GNU General Public License v2.0
+
 Casting Should Be Free is a **free** and **open source** casting mod, no secrets, no paywall.
 I myself am not a part of the competitive community but yesterday I joined some servers and looked around, everything I could see was toxicity and "oh use this casting mod, it only costs x dollars instead of y dollars"
 That is awful for a community, having to pay to do such a trivial part.
