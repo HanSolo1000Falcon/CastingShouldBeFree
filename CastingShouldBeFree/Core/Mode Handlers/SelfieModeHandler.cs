@@ -11,15 +11,18 @@ public class SelfieModeHandler : ModeHandlerBase
     private Vector3    positionOffset;
     private Quaternion rotationOffset;
 
-    public override string HandlerName => "Selfie";
-    public override bool IsPlayerDependent => false;
+    public override string HandlerName       => "Selfie";
+    public override bool   IsPlayerDependent => false;
 
     private void LateUpdate()
     {
         if (!isHolding)
         {
-            TryStartHolding(GTPlayer.Instance.leftHand.controllerTransform, ControllerInputPoller.instance.leftGrab,  true);
-            TryStartHolding(GTPlayer.Instance.rightHand.controllerTransform, ControllerInputPoller.instance.rightGrab,  false);
+            TryStartHolding(GTPlayer.Instance.leftHand.controllerTransform, ControllerInputPoller.instance.leftGrab,
+                    true);
+
+            TryStartHolding(GTPlayer.Instance.rightHand.controllerTransform, ControllerInputPoller.instance.rightGrab,
+                    false);
         }
         else
         {

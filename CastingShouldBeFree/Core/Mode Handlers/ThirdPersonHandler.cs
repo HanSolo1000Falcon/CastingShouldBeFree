@@ -1,5 +1,3 @@
-using CastingShouldBeFree.Core.Interface;
-using CastingShouldBeFree.Utils;
 using UnityEngine;
 
 namespace CastingShouldBeFree.Core.Mode_Handlers;
@@ -9,8 +7,8 @@ public class ThirdPersonHandler : ModeHandlerBase
     public static float X = 0f;
     public static bool  BodyLocked;
 
-    public override string HandlerName => HandlerNameStatic();
-    public override bool IsPlayerDependent => true;
+    public override string HandlerName       => HandlerNameStatic();
+    public override bool   IsPlayerDependent => true;
 
     private void LateUpdate()
     {

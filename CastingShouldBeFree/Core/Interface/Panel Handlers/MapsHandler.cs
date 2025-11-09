@@ -1,9 +1,6 @@
 using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Text.RegularExpressions;
-using GorillaLocomotion;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -19,33 +16,36 @@ public class MapsHandler : PanelHandlerBase
     {
         mapsButtonHolder = transform.Find("MapsGrid/Viewport/Content");
         GameObject mapButtonPrefab = mapsButtonHolder.GetChild(0).gameObject;
-        
+
         foreach (GTZone zone in Enum.GetValues(typeof(GTZone)))
         {
             string parsedZoneName = ParseZoneName(zone);
+
             if (string.IsNullOrEmpty(parsedZoneName)) continue;
             GameObject mapButton = Instantiate(mapButtonPrefab, mapsButtonHolder);
             mapButton.GetComponentInChildren<TextMeshProUGUI>().text = parsedZoneName;
             mapButton.GetComponent<Button>().onClick.AddListener(() => ZoneManagement.SetActiveZone(zone));
         }
-        
+
         Destroy(mapButtonPrefab);
 
         transform.Find("ZeroGravity").GetComponent<Button>().onClick.AddListener(() =>
-        {
-            isZeroGravity = !isZeroGravity;
-            if (isZeroGravity) Plugin.Instance.OnFixedUpdate += ZeroGravity;
-            else Plugin.Instance.OnFixedUpdate -= ZeroGravity;
-        });
-        
+            {
+                isZeroGravity = !isZeroGravity;
+                if (isZeroGravity) Plugin.Instance.OnFixedUpdate += ZeroGravity;
+                else Plugin.Instance.OnFixedUpdate               -= ZeroGravity;
+            });
+
         base.Start();
     }
 
     private string ParseZoneName(GTZone zone)
     {
         string zoneName = zone.ToString();
+
         if (string.IsNullOrEmpty(zoneName)) return zoneName;
         string spacedZoneName = Regex.Replace(zoneName, "(?<!^)([A-Z])", " $1");
+
         return CultureInfo.InvariantCulture.TextInfo.ToTitleCase(spacedZoneName);
     }
 

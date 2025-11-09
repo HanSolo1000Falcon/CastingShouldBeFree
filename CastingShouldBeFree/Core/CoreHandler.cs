@@ -34,31 +34,12 @@ public class CoreHandler : Singleton<CoreHandler>
 
     public Action<string> OnCurrentHandlerChange;
 
-    public void OnDeprecatedVersionDetected(Version localVersion, Version remoteVersion, string explanation) =>
-            StartCoroutine(WaitForInitialization(localVersion, remoteVersion, explanation));
-
-    private IEnumerator WaitForInitialization(Version localVersion, Version remoteVersion, string explanation)
-    {
-        while (GUIHandler.Instance == null || WorldSpaceHandler.Instance == null || GUIHandler.Instance.Canvas == null || WorldSpaceHandler.Instance.Canvas == null)
-            yield return null;
-        
-        Destroy(GUIHandler.Instance.Canvas);
-        Destroy(WorldSpaceHandler.Instance.Canvas);
-        Destroy(GUIHandler.Instance);
-        Destroy(WorldSpaceHandler.Instance);
-
-        GameObject deprecatedCanvas = Instantiate(Plugin.Instance.CastingBundle.LoadAsset<GameObject>("DeprecatedVersionCanvas"));
-        deprecatedCanvas.transform.Find("Panel/Top/Subtitle").GetComponent<TextMeshProUGUI>().text =
-                $"<color=red>Current version: {localVersion.Major}.{localVersion.Minor}.{localVersion.Patch}</color>\n<color=green>Latest version: {remoteVersion.Major}.{remoteVersion.Minor}.{remoteVersion.Patch}</color>";
-        deprecatedCanvas.transform.Find("Panel/Explanation").GetComponent<TextMeshProUGUI>().text = explanation;
-    }
-
     private void Start()
     {
         GameObject modeHandlersComponents = new("Casting Should Be Free Mode Handlers");
 
         Type[] modeHandlerTypes = Assembly.GetExecutingAssembly().GetTypes().Where(type =>
-                    type.IsClass && !type.IsAbstract && typeof(ModeHandlerBase).IsAssignableFrom(type)).ToArray();
+                type.IsClass && !type.IsAbstract && typeof(ModeHandlerBase).IsAssignableFrom(type)).ToArray();
 
         foreach (Type modeHandlerType in modeHandlerTypes)
         {
@@ -78,6 +59,29 @@ public class CoreHandler : Singleton<CoreHandler>
 
         gameObject.AddComponent<GUIHandler>();
         gameObject.AddComponent<WorldSpaceHandler>();
+    }
+
+    public void OnDeprecatedVersionDetected(Version localVersion, Version remoteVersion, string explanation) =>
+            StartCoroutine(WaitForInitialization(localVersion, remoteVersion, explanation));
+
+    private IEnumerator WaitForInitialization(Version localVersion, Version remoteVersion, string explanation)
+    {
+        while (GUIHandler.Instance        == null || WorldSpaceHandler.Instance        == null ||
+               GUIHandler.Instance.Canvas == null || WorldSpaceHandler.Instance.Canvas == null)
+            yield return null;
+
+        Destroy(GUIHandler.Instance.Canvas);
+        Destroy(WorldSpaceHandler.Instance.Canvas);
+        Destroy(GUIHandler.Instance);
+        Destroy(WorldSpaceHandler.Instance);
+
+        GameObject deprecatedCanvas =
+                Instantiate(Plugin.Instance.CastingBundle.LoadAsset<GameObject>("DeprecatedVersionCanvas"));
+
+        deprecatedCanvas.transform.Find("Panel/Top/Subtitle").GetComponent<TextMeshProUGUI>().text =
+                $"<color=red>Current version: {localVersion.Major}.{localVersion.Minor}.{localVersion.Patch}</color>\n<color=green>Latest version: {remoteVersion.Major}.{remoteVersion.Minor}.{remoteVersion.Patch}</color>";
+
+        deprecatedCanvas.transform.Find("Panel/Explanation").GetComponent<TextMeshProUGUI>().text = explanation;
     }
 
     public void SetCurrentHandler(string handlerName)

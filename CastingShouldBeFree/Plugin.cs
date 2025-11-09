@@ -19,13 +19,13 @@ namespace CastingShouldBeFree;
 [BepInPlugin(Constants.PluginGuid, Constants.PluginName, Constants.PluginVersion)]
 public class Plugin : BaseUnityPlugin
 {
-    public const  string GorillaInfoURL = "https://raw.githubusercontent.com/HanSolo1000Falcon/GorillaInfo/main/";
+    public const string GorillaInfoURL = "https://raw.githubusercontent.com/HanSolo1000Falcon/GorillaInfo/main/";
+
+    public        Action OnFixedUpdate;
+    public        Action OnLateUpdate;
+    public        Action OnUpdate;
     public static Plugin Instance { get; private set; }
 
-    public Action OnFixedUpdate;
-    public Action OnLateUpdate;
-    public Action OnUpdate;
-    
     public AssetBundle CastingBundle { get; private set; }
 
     public Transform PCCamera { get; private set; }
@@ -46,6 +46,11 @@ public class Plugin : BaseUnityPlugin
         Harmony harmony = new(Constants.PluginGuid);
         harmony.PatchAll();
     }
+
+    private void Update() => OnUpdate?.Invoke();
+
+    private void FixedUpdate() => OnFixedUpdate?.Invoke();
+    private void LateUpdate()  => OnLateUpdate?.Invoke();
 
     private void OnGameInitialized()
     {
@@ -106,8 +111,4 @@ public class Plugin : BaseUnityPlugin
                                                nametag.UpdatePlayerPlatform();
                                        };
     }
-    
-    private void FixedUpdate() => OnFixedUpdate?.Invoke();
-    private void LateUpdate()  => OnLateUpdate?.Invoke();
-    private void Update()      => OnUpdate?.Invoke();
 }

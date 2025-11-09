@@ -19,7 +19,7 @@ public class TimeHandler : PanelHandlerBase
                                                                                                 .WeatherType
                                                                                                 .Raining;
                                                                          });
-        
+
         transform.GetChild(3).GetComponent<Button>().onClick.AddListener(() =>
                                                                          {
                                                                              for (int i = 0;
@@ -33,13 +33,15 @@ public class TimeHandler : PanelHandlerBase
                                                                                                 .None;
                                                                          });
 
-        transform.GetChild(1).GetComponentInChildren<Slider>().maxValue = BetterDayNightManager.instance.timeOfDayRange.Length;
+        transform.GetChild(1).GetComponentInChildren<Slider>().maxValue =
+                BetterDayNightManager.instance.timeOfDayRange.Length;
+
         transform.GetChild(1).GetComponentInChildren<Slider>().onValueChanged.AddListener(value =>
-            {
-                int valueReal = (int)value;
-                BetterDayNightManager.instance.SetTimeOfDay(valueReal);
-                transform.GetChild(1).GetComponentInChildren<TextMeshProUGUI>().text = $"Current Time: {valueReal}";
-            });
+        {
+            int valueReal = (int)value;
+            BetterDayNightManager.instance.SetTimeOfDay(valueReal);
+            transform.GetChild(1).GetComponentInChildren<TextMeshProUGUI>().text = $"Current Time: {valueReal}";
+        });
 
         base.Start();
     }

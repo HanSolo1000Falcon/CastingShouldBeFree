@@ -4,7 +4,6 @@ using CastingShouldBeFree.Utils;
 using GorillaLocomotion;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace CastingShouldBeFree.Core.Interface;
@@ -19,9 +18,9 @@ public class WorldSpaceHandler : Singleton<WorldSpaceHandler>
 
     public GameObject Canvas;
 
-    private bool isInterfaceLocked;
-    
     private float initTime;
+
+    private bool isInterfaceLocked;
 
     private bool wasPressed;
 
@@ -39,51 +38,6 @@ public class WorldSpaceHandler : Singleton<WorldSpaceHandler>
         Canvas.SetActive(false);
         initTime = Time.time;
     }
-    
-    private void SetUpCameraLocking()
-    {
-        Canvas.transform.Find("MainPanel/LockButton/Collider").AddComponent<PressableButton>().OnPress = () =>
-            {
-                isInterfaceLocked = !isInterfaceLocked;
-
-                if (isInterfaceLocked)
-                {
-                    LockCamera(CoreHandler.Instance.CurrentHandlerName);
-                    CoreHandler.Instance.OnCurrentHandlerChange += LockCamera;
-                }
-                else
-                {
-                    Canvas.transform.SetParent(null);
-                    Canvas.transform.position = GTPlayer.Instance.bodyCollider.transform.position +
-                                                GTPlayer.Instance.bodyCollider.transform.forward * 0.5f;
-
-                    Canvas.transform.LookAt(GTPlayer.Instance.headCollider.transform);
-                    Canvas.transform.Rotate(0f, 180f, 0f);
-                    CoreHandler.Instance.OnCurrentHandlerChange -= LockCamera;
-                }
-            };
-    }
-
-    private void LockCamera(string handlerName)
-    {
-        ModeHandlerBase modeHandler = CoreHandler.Instance.ModeHandlers[handlerName];
-        
-        if (modeHandler.IsPlayerDependent)
-        {
-            Canvas.transform.SetParent(null);
-            Canvas.transform.position = GTPlayer.Instance.bodyCollider.transform.position +
-                                        GTPlayer.Instance.bodyCollider.transform.forward * 0.5f;
-
-            Canvas.transform.LookAt(GTPlayer.Instance.headCollider.transform);
-            Canvas.transform.Rotate(0f, 180f, 0f);
-        }
-        else
-        {
-            Canvas.transform.SetParent(CameraHandler.Instance.transform);
-            Canvas.transform.localPosition = new Vector3(0f, -0.08f, 0f);
-            Canvas.transform.localRotation = Quaternion.Euler(0f, 180f, 0f);
-        }
-    }
 
     private void Update()
     {
@@ -96,7 +50,8 @@ public class WorldSpaceHandler : Singleton<WorldSpaceHandler>
         {
             Canvas.SetActive(!Canvas.activeSelf);
 
-            if (!isInterfaceLocked || CoreHandler.Instance.ModeHandlers[CoreHandler.Instance.CurrentHandlerName].IsPlayerDependent)
+            if (!isInterfaceLocked || CoreHandler.Instance.ModeHandlers[CoreHandler.Instance.CurrentHandlerName]
+                                                 .IsPlayerDependent)
             {
                 Canvas.transform.position = GTPlayer.Instance.bodyCollider.transform.position +
                                             GTPlayer.Instance.bodyCollider.transform.forward * 0.5f;
@@ -113,6 +68,51 @@ public class WorldSpaceHandler : Singleton<WorldSpaceHandler>
         }
 
         wasPressed = isPressed;
+    }
+
+    private void SetUpCameraLocking()
+    {
+        Canvas.transform.Find("MainPanel/LockButton/Collider").AddComponent<PressableButton>().OnPress = () =>
+        {
+            isInterfaceLocked = !isInterfaceLocked;
+
+            if (isInterfaceLocked)
+            {
+                LockCamera(CoreHandler.Instance.CurrentHandlerName);
+                CoreHandler.Instance.OnCurrentHandlerChange += LockCamera;
+            }
+            else
+            {
+                Canvas.transform.SetParent(null);
+                Canvas.transform.position = GTPlayer.Instance.bodyCollider.transform.position +
+                                            GTPlayer.Instance.bodyCollider.transform.forward * 0.5f;
+
+                Canvas.transform.LookAt(GTPlayer.Instance.headCollider.transform);
+                Canvas.transform.Rotate(0f, 180f, 0f);
+                CoreHandler.Instance.OnCurrentHandlerChange -= LockCamera;
+            }
+        };
+    }
+
+    private void LockCamera(string handlerName)
+    {
+        ModeHandlerBase modeHandler = CoreHandler.Instance.ModeHandlers[handlerName];
+
+        if (modeHandler.IsPlayerDependent)
+        {
+            Canvas.transform.SetParent(null);
+            Canvas.transform.position = GTPlayer.Instance.bodyCollider.transform.position +
+                                        GTPlayer.Instance.bodyCollider.transform.forward * 0.5f;
+
+            Canvas.transform.LookAt(GTPlayer.Instance.headCollider.transform);
+            Canvas.transform.Rotate(0f, 180f, 0f);
+        }
+        else
+        {
+            Canvas.transform.SetParent(CameraHandler.Instance.transform);
+            Canvas.transform.localPosition = new Vector3(0f, -0.08f, 0f);
+            Canvas.transform.localRotation = Quaternion.Euler(0f, 180f, 0f);
+        }
     }
 
     public void SetUpRenderTexture()
@@ -156,25 +156,25 @@ public class WorldSpaceHandler : Singleton<WorldSpaceHandler>
         Transform fovPanel = tunables.Find("FOVPanel");
         FOVText = fovPanel.Find("FOVText").GetComponent<TextMeshProUGUI>();
         fovPanel.Find("MoreFOV/Collider").AddComponent<PressableButton>().OnPress += () =>
-                    CoreHandler.Instance.SetFOV((int)GUIHandler.Instance.FOVSlider.value + 5);
+                CoreHandler.Instance.SetFOV((int)GUIHandler.Instance.FOVSlider.value + 5);
 
         fovPanel.Find("LessFOV/Collider").AddComponent<PressableButton>().OnPress += () =>
-                    CoreHandler.Instance.SetFOV((int)GUIHandler.Instance.FOVSlider.value - 5);
+                CoreHandler.Instance.SetFOV((int)GUIHandler.Instance.FOVSlider.value - 5);
 
         Transform nearClipPanel = tunables.Find("NearClipPanel");
         NearClipText = nearClipPanel.Find("NearClipText").GetComponent<TextMeshProUGUI>();
         nearClipPanel.Find("MoreNearClip/Collider").AddComponent<PressableButton>().OnPress += () =>
-                    CoreHandler.Instance.SetNearClip((int)GUIHandler.Instance.NearClipSlider.value + 1);
+                CoreHandler.Instance.SetNearClip((int)GUIHandler.Instance.NearClipSlider.value + 1);
 
         nearClipPanel.Find("LessNearClip/Collider").AddComponent<PressableButton>().OnPress += () =>
-                    CoreHandler.Instance.SetNearClip((int)GUIHandler.Instance.NearClipSlider.value - 1);
+                CoreHandler.Instance.SetNearClip((int)GUIHandler.Instance.NearClipSlider.value - 1);
 
         Transform smoothingPanel = tunables.Find("SmoothingPanel");
         SmoothingText = smoothingPanel.Find("SmoothingText").GetComponent<TextMeshProUGUI>();
         smoothingPanel.Find("MoreSmoothing/Collider").AddComponent<PressableButton>().OnPress += () =>
-                    CoreHandler.Instance.SetSmoothing(CameraHandler.Instance.SmoothingFactor + 1);
+                CoreHandler.Instance.SetSmoothing(CameraHandler.Instance.SmoothingFactor + 1);
 
         smoothingPanel.Find("LessSmoothing/Collider").AddComponent<PressableButton>().OnPress += () =>
-                    CoreHandler.Instance.SetSmoothing(CameraHandler.Instance.SmoothingFactor - 1);
+                CoreHandler.Instance.SetSmoothing(CameraHandler.Instance.SmoothingFactor - 1);
     }
 }

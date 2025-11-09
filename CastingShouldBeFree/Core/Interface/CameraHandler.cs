@@ -8,6 +8,8 @@ public class CameraHandler : Singleton<CameraHandler>
 {
     public int SmoothingFactor;
 
+    private void Start() => FixEverything(gameObject);
+
     public void Initialize()
     {
         foreach (Transform child in Plugin.Instance.PCCamera)
@@ -15,13 +17,11 @@ public class CameraHandler : Singleton<CameraHandler>
 
         if (!XRSettings.isDeviceActive)
             Plugin.Instance.PCCamera.AddComponent<AudioListener>();
-        
+
         Plugin.Instance.PCCamera.transform.SetParent(transform);
         Plugin.Instance.PCCamera.transform.localPosition = Vector3.zero;
         Plugin.Instance.PCCamera.transform.localRotation = Quaternion.identity;
     }
-    
-    private void Start() => FixEverything(gameObject);
 
     private void FixEverything(GameObject obj)
     {

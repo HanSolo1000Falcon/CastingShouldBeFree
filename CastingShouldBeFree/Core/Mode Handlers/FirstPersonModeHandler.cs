@@ -8,8 +8,8 @@ namespace CastingShouldBeFree.Core.Mode_Handlers;
 
 public class FirstPersonModeHandler : ModeHandlerBase
 {
-    public override string HandlerName => HandlerNameStatic();
-    public override bool IsPlayerDependent => true;
+    public override string HandlerName       => HandlerNameStatic();
+    public override bool   IsPlayerDependent => true;
 
     private void LateUpdate()
     {
@@ -17,7 +17,7 @@ public class FirstPersonModeHandler : ModeHandlerBase
             return;
 
         targetRotation = CoreHandler.Instance.CastedRig.headMesh.transform.rotation;
-        
+
         if (RollLock)
         {
             Vector3 forward = targetRotation * Vector3.forward;
@@ -25,7 +25,7 @@ public class FirstPersonModeHandler : ModeHandlerBase
             Vector3 euler = targetRotation.eulerAngles;
             targetRotation = Quaternion.Euler(euler.x, euler.y, 0f);
         }
-        
+
         HandleGenericSmoothing(Time.deltaTime);
         targetPosition = CoreHandler.Instance.CastedRig.headMesh.transform.TransformPoint(new Vector3(0f, 0.15f, 0f));
         SetCameraPositionAndRotation();

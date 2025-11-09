@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -193,7 +192,7 @@ public class GUIHandler : Singleton<GUIHandler>
 
         SmoothingSlider.onValueChanged.AddListener(value => CoreHandler.Instance.SetSmoothing((int)value));
     }
-    
+
     private void SetUpOtherPanels(GameObject mainPanel)
     {
         Transform panelButtonContent = mainPanel.transform.Find("Chin/Panels/Viewport/Content");
@@ -244,10 +243,10 @@ public class GUIHandler : Singleton<GUIHandler>
         moreInfo.Find("Exit").GetComponent<Button>().onClick.AddListener(() => moreInfo.gameObject.SetActive(false));
 
         playerInformation.Find("MoreInfo").GetComponent<Button>().onClick.AddListener(() =>
-        {
-            moreInfo.localPosition = Vector3.zero;
-            moreInfo.gameObject.SetActive(!moreInfo.gameObject.activeSelf);
-        });
+            {
+                moreInfo.localPosition = Vector3.zero;
+                moreInfo.gameObject.SetActive(!moreInfo.gameObject.activeSelf);
+            });
     }
 
     public void InitEventSystem()
